@@ -2,7 +2,6 @@ import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, status
 from .core.database import Base, engine
-from .routers import routers
 app = FastAPI()
 
 
