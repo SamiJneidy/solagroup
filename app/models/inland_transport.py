@@ -6,6 +6,6 @@ class InlandTransport(Base):
     __tablename__ = "inland_transport"
     id = Column("id", Integer, primary_key=True)
     source_id = Column("source_id", Integer, ForeignKey("sources.id"), nullable=False)
-    destination_id = Column("destination_id", Integer, ForeignKey("destinations.id"), nullable=False)
+    warehouse_id = Column("warehouse_id", Integer, ForeignKey("warehouses.id"), nullable=False)
     cost = Column("cost", Float, nullable=False)
-    __table_args__ = (UniqueConstraint('source_id', 'destination_id', name="unique_source_destination"),)
+    __table_args__ = (UniqueConstraint('source_id', 'warehouse_id', name="unique_source_warehouse"),)

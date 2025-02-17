@@ -2,7 +2,7 @@ from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 from typing import Optional
 
-class Destination(BaseModel):
+class Warehouse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
@@ -11,13 +11,13 @@ class Destination(BaseModel):
     address: str
     zipcode: str
 
-class DestinationCreate(BaseModel):
+class WarehouseCreate(BaseModel):
     state: str
     city: str
     address: str
     zipcode: str
 
-class DestinationUpdate(BaseModel):
+class WarehouseUpdate(BaseModel):
     state: Optional[str] = None
     city: Optional[str] = None
     address: Optional[str] = None

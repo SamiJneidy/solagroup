@@ -17,11 +17,11 @@ inland_transport_view = select(
         models.Source.address.label("source_address"),
         models.Source.zipcode.label("source_zipcode"),
         
-        models.Destination.id.label("destination_id"),
-        models.Destination.state.label("destination_state"),
-        models.Destination.zipcode.label("destination_zipcode")
+        models.Warehouse.id.label("warehouse_id"),
+        models.Warehouse.state.label("warehouse_state"),
+        models.Warehouse.zipcode.label("warehouse_zipcode")
         ).join(models.Source, models.InlandTransport.source_id==models.Source.id
-        ).join(models.Destination, models.InlandTransport.destination_id==models.Destination.id)
+        ).join(models.Warehouse, models.InlandTransport.warehouse_id==models.Warehouse.id)
 
 async def create_inland_transport(data: schemas.InlandTransportCreate, db: Session) -> schemas.InlandTransport:
     try:

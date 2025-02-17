@@ -11,17 +11,17 @@ class InlandTransport(BaseModel):
     source_city: str
     source_address: str
     source_zipcode: str
-    destination_id: int
-    destination_state: str
-    destination_zipcode: str
+    warehouse_id: int
+    warehouse_state: str
+    warehouse_zipcode: str
     cost: float
 
 class InlandTransportCreate(BaseModel):
     source_id: int
-    destination_id: int
+    warehouse_id: int
     cost: float
 
 class InlandTransportUpdate(BaseModel):
     source_id: Optional[int] = None
-    destination_id: Optional[int] = None
+    warehouse_id: Optional[int] = None
     cost: Optional[float] = None

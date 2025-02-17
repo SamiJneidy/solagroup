@@ -49,7 +49,7 @@ async def signup(data: schemas.UserCreate, db: Session) -> schemas.UserGet:
         return schemas.UserGet.model_validate(inserted_user)
     except IntegrityError:
         db.rollback()
-        raise exceptions.UsernameAlreadyInUse()
+        raise exceptions.ResourceAlreadyInUse("Username")
 
 async def login(login_credentials: schemas.LoginCredentials, db: Session) -> schemas.LoginResponse:
     user: schemas.User = await get_user_by_username(login_credentials.username, db=db)
