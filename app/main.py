@@ -2,8 +2,11 @@ import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, status
 from .core.database import Base, engine
-app = FastAPI()
+from .routers import routers
 
+app = FastAPI()
+for router in routers:
+    app.include_router(router)
 
 origins = ["*"]
 app.add_middleware(
@@ -14,7 +17,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Base.metadata.drop_all(bind=engine)
 Base.metadata.create_all(bind=engine)
 
 @app.get("/", status_code=status.HTTP_200_OK)
