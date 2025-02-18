@@ -40,8 +40,8 @@ async def update_inland_transport(id: int, data: schemas.InlandTransportUpdate, 
         if values == {}:
             return await get_inland_transport_by_id(id, db)
         stmt = update(models.InlandTransport).values(**values).where(models.InlandTransport.id==id).returning(models.InlandTransport)
-        source = db.execute(stmt).scalars().first()
-        if source is None:
+        inland_transport = db.execute(stmt).scalars().first()
+        if inland_transport is None:
             raise exceptions.ResourceNotFound("Inland transport")
         db.commit()
         return await get_inland_transport_by_id(id, db)
@@ -52,18 +52,17 @@ async def update_inland_transport(id: int, data: schemas.InlandTransportUpdate, 
 
 async def delete_inland_transport(id: int, db: Session) -> None:
     stmt = delete(models.InlandTransport).where(models.InlandTransport.id==id).returning(models.InlandTransport)
-    source = db.execute(stmt).scalars().first()
-    if source is None:
+    inland_transport = db.execute(stmt).scalars().first()
+    if inland_transport is None:
         raise exceptions.ResourceNotFound("Inland transport") 
     db.commit()
 
 async def get_inland_transport_by_id(id: int, db: Session) -> schemas.InlandTransport:
     stmt = inland_transport_view.filter(models.InlandTransport.id==id)
-    source = db.execute(stmt).mappings().first()
-    if source is None:
+    inland_transport = db.execute(stmt).mappings().first()
+    if inland_transport is None:
         raise exceptions.ResourceNotFound("Inland transport") 
-    print(dict(source))
-    return schemas.InlandTransport.model_validate(source)
+    return schemas.InlandTransport.model_validate(inland_transport)
 
 # async def get_inland_transport_by_zipcode(zipcode: str, db: Session) -> schemas.InlandTransport:
 #     stmt = select(models.InlandTransport).filter(models.InlandTransport. zipcode==zipcode)
@@ -74,5 +73,5 @@ async def get_inland_transport_by_id(id: int, db: Session) -> schemas.InlandTran
 
 async def get_inland_transports(db: Session, page: int = 1, limit: int = 10) -> list[schemas.InlandTransport]:
     stmt = inland_transport_view
-    sources = [schemas.InlandTransport.model_validate(source) for source in db.execute(stmt).mappings().all()]
-    return sources
+    inland_transports = [schemas.InlandTransport.model_validate(inland_transport) for inland_transport in db.execute(stmt).mappings().all()]
+    return inland_transports

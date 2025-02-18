@@ -4,7 +4,7 @@ from .. import schemas, crud
 from ..core.database import get_db
 from ..crud.authentication import get_current_user
 
-router = APIRouter(prefix="/Warehouses")
+router = APIRouter(prefix="/warehouses")
 
 
 @router.get(path="/get/id/{id}", response_model=schemas.Warehouse, status_code=status.HTTP_200_OK, tags=["Warehouses"])

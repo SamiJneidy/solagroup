@@ -14,7 +14,7 @@ async def create_warehouse(data: schemas.WarehouseCreate, db: Session) -> schema
         db.commit()
         return schemas.Warehouse.model_validate(inserted_warehouse)
     except IntegrityError:
-        raise exceptions.ZipCodeAlreadyInUse()
+        raise exceptions.ResourceAlreadyInUse("Zipcode")
 
 async def update_warehouse(id: int, data: schemas.WarehouseUpdate, db: Session) -> schemas.Warehouse:
     try:
@@ -28,17 +28,14 @@ async def update_warehouse(id: int, data: schemas.WarehouseUpdate, db: Session) 
         db.commit()
         return schemas.Warehouse.model_validate(warehouse)   
     except IntegrityError:
-        raise exceptions.ZipCodeAlreadyInUse()
+        raise exceptions.ResourceAlreadyInUse("Zipcode")
 
 async def delete_warehouse(id: int, db: Session) -> None:
-    try:
-        stmt = delete(models.Warehouse).where(models.Warehouse.id==id).returning(models.Warehouse)
-        warehouse = db.execute(stmt).scalars().first()
-        if warehouse is None:
-            raise exceptions.ResourceNotFound("Warehouse")
-        db.commit()
-    except IntegrityError:
-        raise exceptions.ZipCodeAlreadyInUse()
+    stmt = delete(models.Warehouse).where(models.Warehouse.id==id).returning(models.Warehouse)
+    warehouse = db.execute(stmt).scalars().first()
+    if warehouse is None:
+        raise exceptions.ResourceNotFound("Warehouse")
+    db.commit()
 
 async def get_warehouse_by_id(id: int, db: Session) -> schemas.Warehouse:
     stmt = select(models.Warehouse).filter(models.Warehouse.id==id)

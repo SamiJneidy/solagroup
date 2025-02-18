@@ -17,9 +17,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+Base.metadata.drop_all(bind=engine)
 Base.metadata.create_all(bind=engine)
 
-@app.get("/", status_code=status.HTTP_200_OK)
+@app.get("/", status_code=status.HTTP_200_OK, tags=["Root"])
 async def root():
     return {"detail": "Welcome to Sola Group, the server is running"}
 

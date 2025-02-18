@@ -1,5 +1,5 @@
 import jwt
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from passlib.context import CryptContext
 from sqlalchemy import insert
 from sqlalchemy.orm import Session
@@ -11,7 +11,7 @@ from ..core.config import settings
 from ..core import exceptions
 from .. import schemas, models
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/authorize")
 pwd_context = CryptContext(schemes=["bcrypt"])
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -53,8 +53,17 @@ async def signup(data: schemas.UserCreate, db: Session) -> schemas.UserGet:
 
 async def login(login_credentials: schemas.LoginCredentials, db: Session) -> schemas.LoginResponse:
     user: schemas.User = await get_user_by_username(login_credentials.username, db=db)
-    if verify_password(login_credentials.password, user.password):
-        payload = schemas.TokenPayload(username=user.username)
-        access_token = await create_access_token(payload)
-        return schemas.LoginResponse(username=user.username, token=access_token)
-    raise exceptions.InvalidCredentials()
+    if not verify_password(login_credentials.password, user.password):
+        raise exceptions.InvalidCredentials()
+    payload = schemas.TokenPayload(username=user.username)
+    access_token = await create_access_token(payload)
+    return schemas.LoginResponse(username=user.username, token=access_token)
+
+
+async def swaggerUI_login(login_credentials: OAuth2PasswordRequestForm, db: Session):
+    user: schemas.User = await get_user_by_username(login_credentials.username, db=db)
+    if not verify_password(login_credentials.password, user.password):
+        raise exceptions.InvalidCredentials()
+    payload = schemas.TokenPayload(username=user.username)
+    access_token = await create_access_token(payload)
+    return {"access_token": access_token, "token_type": "bearer"}

@@ -31,14 +31,11 @@ async def update_source(id: int, data: schemas.SourceUpdate, db: Session) -> sch
         raise exceptions.ResourceAlreadyInUse("Zipcode")
 
 async def delete_source(id: int, db: Session) -> None:
-    try:
-        stmt = delete(models.Source).where(models.Source.id==id).returning(models.Source)
-        source = db.execute(stmt).scalars().first()
-        if source is None:
-            raise exceptions.ResourceNotFound("Source") 
-        db.commit()
-    except IntegrityError:
-        raise exceptions.ResourceAlreadyInUse("Zipcode")
+    stmt = delete(models.Source).where(models.Source.id==id).returning(models.Source)
+    source = db.execute(stmt).scalars().first()
+    if source is None:
+        raise exceptions.ResourceNotFound("Source") 
+    db.commit()
 
 async def get_source_by_id(id: int, db: Session) -> schemas.Source:
     stmt = select(models.Source).filter(models.Source.id==id)
