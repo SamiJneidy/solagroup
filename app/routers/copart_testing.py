@@ -6,5 +6,5 @@ from ..core.database import get_db
 router = APIRouter(prefix="/copart-testing")
 
 @router.get(path="/get", status_code=status.HTTP_200_OK, tags=["Copart"])
-async def get_users():
+async def get_postal_code():
     return await utils.get_postal_code("41593405")
