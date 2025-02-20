@@ -15,7 +15,7 @@ async def get_warehouse_by_id(id: int, db: Session = Depends(get_db)):
 async def get_warehouse_by_zipcode(zipcode: str, db: Session = Depends(get_db)):
     return await crud.warehouse.get_warehouse_by_zipcode(zipcode, db)
 
-@router.get(path="/get", response_model=list[schemas.Warehouse], status_code=status.HTTP_200_OK, tags=["Warehouses"])
+@router.get(path="/get", response_model=schemas.Pagination[schemas.Warehouse], status_code=status.HTTP_200_OK, tags=["Warehouses"])
 async def get_warehouses(page: int = 1, limit: int = 10, db: Session = Depends(get_db)):
     return await crud.warehouse.get_warehouses(db, page, limit)
 

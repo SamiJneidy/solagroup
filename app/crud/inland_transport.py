@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy import insert, select, update, delete
+from sqlalchemy import insert, select, update, delete, func
 from datetime import datetime, timedelta
 from fastapi import Depends, status
 from ..core.config import settings
@@ -64,14 +64,10 @@ async def get_inland_transport_by_id(id: int, db: Session) -> schemas.InlandTran
         raise exceptions.ResourceNotFound("Inland transport") 
     return schemas.InlandTransport.model_validate(inland_transport)
 
-# async def get_inland_transport_by_zipcode(zipcode: str, db: Session) -> schemas.InlandTransport:
-#     stmt = select(models.InlandTransport).filter(models.InlandTransport. zipcode==zipcode)
-#     source = db.execute(stmt).scalars().first()
-#     if source is None:
-#         raise exceptions.InlandTransportNotFound()
-#     return schemas.InlandTransport.model_validate(source)
-
-async def get_inland_transports(db: Session, page: int = 1, limit: int = 10) -> list[schemas.InlandTransport]:
-    stmt = inland_transport_view
-    inland_transports = [schemas.InlandTransport.model_validate(inland_transport) for inland_transport in db.execute(stmt).mappings().all()]
-    return inland_transports
+async def get_inland_transports(db: Session, page: int = 1, limit: int = 10) -> schemas.Pagination[schemas.InlandTransport]:
+    stmt = inland_transport_view.offset((page-1)*limit).limit(limit)
+    data = [schemas.InlandTransport.model_validate(inland_transport) for inland_transport in db.execute(stmt).mappings().all()]
+    total_rows = db.execute(select(func.count(models.InlandTransport.id))).scalar()
+    total_pages = (total_rows + limit - 1) // limit
+    response = schemas.Pagination[schemas.InlandTransport](data=data, total_rows=total_rows, total_pages=total_pages, current_page=page, limit=limit)
+    return response

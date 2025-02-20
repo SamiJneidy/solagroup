@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy import insert, select, update, delete
+from sqlalchemy import insert, select, update, delete, func
 from datetime import datetime, timedelta
 from fastapi import Depends
 from ..core.config import settings
@@ -51,7 +51,10 @@ async def get_warehouse_by_zipcode(zipcode: str, db: Session) -> schemas.Warehou
         raise exceptions.ResourceNotFound("Warehouse")
     return schemas.Warehouse.model_validate(warehouse)
 
-async def get_warehouses(db: Session, page: int = 1, limit: int = 10) -> list[schemas.Warehouse]:
+async def get_warehouses(db: Session, page: int = 1, limit: int = 10) -> schemas.Pagination[schemas.Warehouse]:
     stmt = select(models.Warehouse).offset((page-1)*limit).limit(limit)
-    warehouses = [schemas.Warehouse.model_validate(warehouse) for warehouse in db.execute(stmt).scalars().all()]
-    return warehouses
+    data = [schemas.Warehouse.model_validate(warehouse) for warehouse in db.execute(stmt).scalars().all()]
+    total_rows = db.execute(select(func.count(models.Warehouse.id))).scalar()
+    total_pages = (total_rows + limit - 1) // limit
+    response = schemas.Pagination[schemas.Warehouse](data=data, total_rows=total_rows, total_pages=total_pages, current_page=page, limit=limit)
+    return response

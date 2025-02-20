@@ -10,7 +10,7 @@ router = APIRouter(prefix="/shipping-lines")
 async def get_shipping_line_by_id(id: int, db: Session = Depends(get_db)):
     return await crud.shipping_line.get_shipping_line_by_id(id, db)
 
-@router.get(path="/get", response_model=list[schemas.ShippingLine], status_code=status.HTTP_200_OK, tags=["Shipping lines"])
+@router.get(path="/get", response_model=schemas.Pagination[schemas.ShippingLine], status_code=status.HTTP_200_OK, tags=["Shipping lines"])
 async def get_shipping_line(page: int = 1, limit: int = 10, db: Session = Depends(get_db)):
     return await crud.shipping_line.get_shipping_lines(db, page, limit)
 

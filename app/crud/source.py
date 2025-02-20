@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy import insert, select, update, delete
+from sqlalchemy import insert, select, update, delete, func
 from datetime import datetime, timedelta
 from fastapi import Depends
 from ..core.config import settings
@@ -51,7 +51,10 @@ async def get_source_by_zipcode(zipcode: str, db: Session) -> schemas.Source:
         raise exceptions.ResourceNotFound("Source") 
     return schemas.Source.model_validate(source)
 
-async def get_sources(db: Session, page: int = 1, limit: int = 10) -> list[schemas.Source]:
+async def get_sources(db: Session, page: int = 1, limit: int = 10) -> schemas.Pagination[schemas.Source]:
     stmt = select(models.Source).offset((page-1)*limit).limit(limit)
-    sources = [schemas.Source.model_validate(source) for source in db.execute(stmt).scalars().all()]
-    return sources
+    data = [schemas.Source.model_validate(source) for source in db.execute(stmt).scalars().all()]
+    total_rows = db.execute(select(func.count(models.Source.id))).scalar()
+    total_pages = (total_rows + limit - 1) // limit
+    response = schemas.Pagination[schemas.Source](data=data, total_rows=total_rows, total_pages=total_pages, current_page=page, limit=limit)
+    return response

@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy import insert, select, update, delete
+from sqlalchemy import insert, select, update, delete, func
 from datetime import datetime, timedelta
 from fastapi import Depends, status
 from ..core.config import settings
@@ -61,7 +61,10 @@ async def get_maritime_transport_by_id(id: int, db: Session) -> schemas.Maritime
         raise exceptions.ResourceNotFound("Maritime transport") 
     return schemas.MaritimeTransport.model_validate(maritime_transport)
 
-async def get_maritime_transports(db: Session, page: int = 1, limit: int = 10) -> list[schemas.MaritimeTransport]:
-    stmt = maritime_transport_view
-    maritime_transports = [schemas.MaritimeTransport.model_validate(maritime_transport) for maritime_transport in db.execute(stmt).mappings().all()]
-    return maritime_transports
+async def get_maritime_transports(db: Session, page: int = 1, limit: int = 10) -> schemas.Pagination[schemas.MaritimeTransport]:
+    stmt = maritime_transport_view.offset((page-1)*limit).limit(limit)
+    data = [schemas.MaritimeTransport.model_validate(maritime_transport) for maritime_transport in db.execute(stmt).mappings().all()]
+    total_rows = db.execute(select(func.count(models.MaritimeTransport.id))).scalar()
+    total_pages = (total_rows + limit - 1) // limit
+    response = schemas.Pagination[schemas.MaritimeTransport](data=data, total_rows=total_rows, total_pages=total_pages, current_page=page, limit=limit)
+    return response

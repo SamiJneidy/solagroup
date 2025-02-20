@@ -10,7 +10,7 @@ router = APIRouter(prefix="/maritime-transport")
 async def get_maritime_transport_by_id(id: int, db: Session = Depends(get_db)):
     return await crud.maritime_transport.get_maritime_transport_by_id(id, db)
 
-@router.get(path="/get", response_model=list[schemas.MaritimeTransport], status_code=status.HTTP_200_OK, tags=["Maritime Transport"])
+@router.get(path="/get", response_model=schemas.Pagination[schemas.MaritimeTransport], status_code=status.HTTP_200_OK, tags=["Maritime Transport"])
 async def get_maritime_transports(page: int = 1, limit: int = 10, db: Session = Depends(get_db)):
     return await crud.maritime_transport.get_maritime_transports(db, page, limit)
 

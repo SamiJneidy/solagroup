@@ -10,11 +10,7 @@ router = APIRouter(prefix="/inland-transport")
 async def get_inland_transport_by_id(id: int, db: Session = Depends(get_db)):
     return await crud.inland_transport.get_inland_transport_by_id(id, db)
 
-# @router.get(path="/get/zipcode/{zipcode}", response_model=schemas.InlandTransport, status_code=status.HTTP_200_OK, tags=["Inland Transport"])
-# async def get_inland_transport_by_zipcode(zipcode: str, db: Session = Depends(get_db)):
-#     return await crud.InlandTransport.get_inland_transport_by_zipcode(zipcode, db)
-
-@router.get(path="/get", response_model=list[schemas.InlandTransport], status_code=status.HTTP_200_OK, tags=["Inland Transport"])
+@router.get(path="/get", response_model=schemas.Pagination[schemas.InlandTransport], status_code=status.HTTP_200_OK, tags=["Inland Transport"])
 async def get_inland_transports(page: int = 1, limit: int = 10, db: Session = Depends(get_db)):
     return await crud.inland_transport.get_inland_transports(db, page, limit)
 
