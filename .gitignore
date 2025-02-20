@@ -2,3 +2,4 @@ venv/
 __pycache__
 .env
 solagroup.db
+original_requirements.txt
