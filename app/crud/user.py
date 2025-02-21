@@ -10,18 +10,14 @@ from .. import schemas, models
 async def get_user_by_username(username: str, db: Session) -> schemas.User:
     user: models.User = db.query(models.User).filter(models.User.username==username).first()
     if not user:
-        raise exceptions.ReUserNotFound("Username")
+        raise exceptions.ResourceNotFound("Username")
     return schemas.User.model_validate(user)
 
 async def get_user_by_id(id: int, db: Session) -> schemas.User:
     user: models.User = db.query(models.User).filter(models.User.id==id).first()
     if not user:
-        raise exceptions.ReUserNotFound("Username")
+        raise exceptions.ResourceNotFound("Username")
     return schemas.User.model_validate(user)
-
-# async def get_users(db: Session) -> list[schemas.UserGet]:
-#     users = [schemas.UserGet.model_validate(user) for user in db.execute(select(models.User)).scalars().all()]
-#     return users
 
 async def get_users(db: Session, page: int = 1, limit: int = 10) -> schemas.Pagination[schemas.UserGet]:
     stmt = select(models.User).offset((page-1)*limit).limit(limit)

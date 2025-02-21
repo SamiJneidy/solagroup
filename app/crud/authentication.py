@@ -59,7 +59,6 @@ async def login(login_credentials: schemas.LoginCredentials, db: Session) -> sch
     access_token = await create_access_token(payload)
     return schemas.LoginResponse(username=user.username, token=access_token)
 
-
 async def swaggerUI_login(login_credentials: OAuth2PasswordRequestForm, db: Session):
     user: schemas.User = await get_user_by_username(login_credentials.username, db=db)
     if not verify_password(login_credentials.password, user.password):

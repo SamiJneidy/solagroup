@@ -37,7 +37,7 @@ async def get_auction_fees(db: Session, page: int = 1, limit: int = 10, auction:
     return response
 
 async def get_auction_fee(amount: float, auction: models.Auction, db: Session) -> float:
-    stmt = select(models.AuctionFee).where(and_(models.AuctionFee.range_from <= amount, models.AuctionFee.range_to >= amount))
+    stmt = select(models.AuctionFee).where(and_(models.AuctionFee.auction==auction, models.AuctionFee.range_from <= amount, models.AuctionFee.range_to >= amount))
     fee = db.execute(stmt).scalars().first()
     if fee.range_to >= 0:
         return fee.fee
