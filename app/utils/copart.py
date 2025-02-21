@@ -1,27 +1,41 @@
-import requests
-from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.firefox.service import Service
+from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from webdriver_manager.firefox import GeckoDriverManager
+from fastapi import status
+from ..core.exceptions import HTTPException
 
-def get_postal_code(lot_number):
-    url = f"https://www.copart.com/lot/{lot_number}"
-    headers = {"User-Agent": "Mozilla/5.0"}  # Mimic a browser request
-    
-    response = requests.get(url, headers=headers)
-
-    if response.status_code == 200:
-        soup = BeautifulSoup(response.text, "html.parser")
-        return {"page": soup.prettify()}
-        # Locate the postal code in the page source
-        postal_code = None
-        for div in soup.find_all("div"):
-            if "Zip" in div.text:  # Copart sometimes labels the postal code as "Zip"
-                postal_code = div.text.split(":")[-1].strip()
+async def get_car_location(lot_number: str = "89338945"):
+    # Set up Firefox options
+    options = Options()
+    options.headless = True  # Run in headless mode (without opening a browser window)
+    # Initialize the Firefox driver using GeckoDriverManager
+    driver = webdriver.Firefox(service=Service(GeckoDriverManager().install()), options=options)
+    try:
+        url = f"https://www.copart.com/lot/{lot_number}"
+        # Open the page
+        driver.get(url)
+        # Define the maximum wait time (in seconds)
+        wait = WebDriverWait(driver, 200)
+        # Wait for the element containing car details to be present
+        sale_info_div = wait.until(
+            EC.presence_of_element_located((By.ID, "sale-information-block"))
+        )
+        # Once the div is present, retrieve all its child elements
+        child_elements = sale_info_div.find_elements(By.XPATH, ".//*")
+        # Iterate over each child element and print its tag name and text content
+        location = None
+        for element in child_elements:
+            if element.tag_name == "a" and element.get_attribute("data-uname") == "lotdetailSaleinformationlocationvalue":
+                location = element.text
                 break
-        
-        return postal_code if postal_code else "Postal code not found"
-    
-    else:
-        return f"Error: {response.status_code}"
+        if location is None:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Could not extract location from Copart")
+        return location
+    finally:
+        # Close the driver
+        driver.quit()
 
-# # Example usage:
-# lot_number = "41593405"
-# print(get_postal_code(lot_number))

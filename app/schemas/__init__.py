@@ -5,4 +5,7 @@ from .warehouse import Warehouse, WarehouseCreate, WarehouseUpdate
 from .inland_transport import InlandTransport, InlandTransportCreate, InlandTransportUpdate
 from .shipping_line import ShippingLine, ShippingLineCreate, ShippingLineUpdate
 from .maritime_transport import MaritimeTransport, MaritimeTransportCreate, MaritimeTransportUpdate
+from .auction_fee import AuctionFee, AuctionFeeUpdate
+from .additional_settings import AdditionalSettings, AdditionalSettingsUpdate
+from .estimate_cost import EstimateCostRequest, EstimateCostResponse
 from .common import Pagination

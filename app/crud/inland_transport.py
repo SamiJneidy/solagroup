@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy import insert, select, update, delete, func
+from sqlalchemy import insert, select, update, delete, func, and_
 from datetime import datetime, timedelta
 from fastapi import Depends, status
 from ..core.config import settings
@@ -71,3 +71,16 @@ async def get_inland_transports(db: Session, page: int = 1, limit: int = 10) -> 
     total_pages = (total_rows + limit - 1) // limit
     response = schemas.Pagination[schemas.InlandTransport](data=data, total_rows=total_rows, total_pages=total_pages, current_page=page, limit=limit)
     return response
+
+
+async def get_inland_transport_between(source_id: int, warehouse_id: int, db: Session) -> float:
+    cost = db.execute(
+        select(models.InlandTransport.cost).where(and_(
+            models.InlandTransport.source_id==source_id,
+            models.InlandTransport.warehouse_id==warehouse_id,
+            )
+        )
+    ).scalar()
+    if cost is None:
+        raise exceptions.ResourceNotFound("Inland Transport")
+    return cost

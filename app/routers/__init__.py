@@ -6,6 +6,9 @@ from .inland_transport import router as inalnd_transport_router
 from .shipping_line import router as shipping_line_router
 from .maritime_transport import router as maritime_transport_router
 from .copart_testing import router as copart_router
+from .auction_fee import router as auction_fee_router
+from .additional_settings import router as additional_settings_router
+from .estimate_cost import router as estimate_cost_router
 routers = [
     user_router, 
     authentication_router, 
@@ -15,6 +18,9 @@ routers = [
     shipping_line_router, 
     maritime_transport_router,
     copart_router,
+    auction_fee_router,
+    additional_settings_router,
+    estimate_cost_router,
 ]
 
 
