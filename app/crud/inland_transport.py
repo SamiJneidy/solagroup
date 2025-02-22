@@ -65,7 +65,7 @@ async def get_inland_transport_by_id(id: int, db: Session) -> schemas.InlandTran
     return schemas.InlandTransport.model_validate(inland_transport)
 
 async def get_inland_transports(db: Session, page: int = 1, limit: int = 10) -> schemas.Pagination[schemas.InlandTransport]:
-    stmt = inland_transport_view.offset((page-1)*limit).limit(limit)
+    stmt = inland_transport_view.order_by(models.InlandTransport.id).offset((page-1)*limit).limit(limit)
     data = [schemas.InlandTransport.model_validate(inland_transport) for inland_transport in db.execute(stmt).mappings().all()]
     total_rows = db.execute(select(func.count(models.InlandTransport.id))).scalar()
     total_pages = (total_rows + limit - 1) // limit

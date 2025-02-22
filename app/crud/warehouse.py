@@ -52,7 +52,7 @@ async def get_warehouse_by_zipcode(zipcode: str, db: Session) -> schemas.Warehou
     return schemas.Warehouse.model_validate(warehouse)
 
 async def get_warehouses(db: Session, page: int = 1, limit: int = 10) -> schemas.Pagination[schemas.Warehouse]:
-    stmt = select(models.Warehouse).offset((page-1)*limit).limit(limit)
+    stmt = select(models.Warehouse).order_by(models.Warehouse.id).offset((page-1)*limit).limit(limit)
     data = [schemas.Warehouse.model_validate(warehouse) for warehouse in db.execute(stmt).scalars().all()]
     total_rows = db.execute(select(func.count(models.Warehouse.id))).scalar()
     total_pages = (total_rows + limit - 1) // limit

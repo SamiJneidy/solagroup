@@ -4,9 +4,9 @@ from typing import Optional
 from .. import models
 
 class CarInfo(BaseModel):
-    manufacturer: str
-    country: str
-    year: int
+    manufacturer: Optional[str] = None
+    country: Optional[str] = None
+    year: Optional[int] = None
 
 class EstimateCostRequest(BaseModel):
     amount: float

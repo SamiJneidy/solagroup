@@ -52,7 +52,7 @@ async def get_source_by_zipcode(zipcode: str, db: Session) -> schemas.Source:
     return schemas.Source.model_validate(source)
 
 async def get_sources(db: Session, page: int = 1, limit: int = 10) -> schemas.Pagination[schemas.Source]:
-    stmt = select(models.Source).offset((page-1)*limit).limit(limit)
+    stmt = select(models.Source).order_by(models.Source.id).offset((page-1)*limit).limit(limit)
     data = [schemas.Source.model_validate(source) for source in db.execute(stmt).scalars().all()]
     total_rows = db.execute(select(func.count(models.Source.id))).scalar()
     total_pages = (total_rows + limit - 1) // limit
