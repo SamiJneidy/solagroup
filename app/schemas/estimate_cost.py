@@ -15,7 +15,7 @@ class EstimateCostRequest(BaseModel):
     warehouse: int
     shipping_line: int
     shipping_type: int
-    vin: str
+    vin: Optional[str] = None
 
 class EstimateCostResponse(CarInfo):
     cost: float
