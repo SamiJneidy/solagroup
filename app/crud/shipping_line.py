@@ -39,7 +39,7 @@ async def get_shipping_line_by_id(id: int, db: Session) -> schemas.ShippingLine:
     return schemas.ShippingLine.model_validate(source)
 
 async def get_shipping_lines(db: Session, page: int = 1, limit: int = 10) -> schemas.Pagination[schemas.ShippingLine]:
-    stmt = select(models.ShippingLine).order_by(models.ShippingLine.id).offset((page-1)*limit).limit(limit)
+    stmt = select(models.ShippingLine).order_by(models.ShippingLine.name, models.ShippingLine.id).offset((page-1)*limit).limit(limit)
     data = [schemas.ShippingLine.model_validate(shipping_line) for shipping_line in db.execute(stmt).scalars().all()]
     total_rows = db.execute(select(func.count(models.ShippingLine.id))).scalar()
     total_pages = (total_rows + limit - 1) // limit

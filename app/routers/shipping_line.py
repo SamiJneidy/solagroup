@@ -7,11 +7,11 @@ from ..crud.authentication import get_current_user
 router = APIRouter(prefix="/shipping-lines")
 
 @router.get(path="/get/id/{id}", response_model=schemas.ShippingLine, status_code=status.HTTP_200_OK, tags=["Shipping lines"])
-async def get_shipping_line_by_id(id: int, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
+async def get_shipping_line_by_id(id: int, db: Session = Depends(get_db)):
     return await crud.shipping_line.get_shipping_line_by_id(id, db)
 
 @router.get(path="/get", response_model=schemas.Pagination[schemas.ShippingLine], status_code=status.HTTP_200_OK, tags=["Shipping lines"])
-async def get_shipping_line(page: int = 1, limit: int = 10, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
+async def get_shipping_line(page: int = 1, limit: int = 10, db: Session = Depends(get_db)):
     return await crud.shipping_line.get_shipping_lines(db, page, limit)
 
 @router.post(path="/create", response_model=schemas.ShippingLine, status_code=status.HTTP_200_OK, tags=["Shipping lines"])

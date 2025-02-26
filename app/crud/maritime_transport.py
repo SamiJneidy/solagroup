@@ -62,7 +62,7 @@ async def get_maritime_transport_by_id(id: int, db: Session) -> schemas.Maritime
     return schemas.MaritimeTransport.model_validate(maritime_transport)
 
 async def get_maritime_transports(db: Session, page: int = 1, limit: int = 10) -> schemas.Pagination[schemas.MaritimeTransport]:
-    stmt = maritime_transport_view.order_by(models.MaritimeTransport.id).offset((page-1)*limit).limit(limit)
+    stmt = maritime_transport_view.order_by(models.Warehouse.state, models.Warehouse.city, models.ShippingLine.name, models.MaritimeTransport.id).offset((page-1)*limit).limit(limit)
     data = [schemas.MaritimeTransport.model_validate(maritime_transport) for maritime_transport in db.execute(stmt).mappings().all()]
     total_rows = db.execute(select(func.count(models.MaritimeTransport.id))).scalar()
     total_pages = (total_rows + limit - 1) // limit

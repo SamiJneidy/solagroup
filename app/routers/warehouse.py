@@ -8,15 +8,15 @@ router = APIRouter(prefix="/warehouses")
 
 
 @router.get(path="/get/id/{id}", response_model=schemas.Warehouse, status_code=status.HTTP_200_OK, tags=["Warehouses"])
-async def get_warehouse_by_id(id: int, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
+async def get_warehouse_by_id(id: int, db: Session = Depends(get_db)):
     return await crud.warehouse.get_warehouse_by_id(id, db)
 
 @router.get(path="/get/zipcode/{zipcode}", response_model=schemas.Warehouse, status_code=status.HTTP_200_OK, tags=["Warehouses"])
-async def get_warehouse_by_zipcode(zipcode: str, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
+async def get_warehouse_by_zipcode(zipcode: str, db: Session = Depends(get_db)):
     return await crud.warehouse.get_warehouse_by_zipcode(zipcode, db)
 
 @router.get(path="/get", response_model=schemas.Pagination[schemas.Warehouse], status_code=status.HTTP_200_OK, tags=["Warehouses"])
-async def get_warehouses(page: int = 1, limit: int = 10, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
+async def get_warehouses(page: int = 1, limit: int = 10, db: Session = Depends(get_db)):
     return await crud.warehouse.get_warehouses(db, page, limit)
 
 @router.post(path="/create", response_model=schemas.Warehouse, status_code=status.HTTP_200_OK, tags=["Warehouses"])

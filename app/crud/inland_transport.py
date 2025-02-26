@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy import insert, select, update, delete, func, and_
+from sqlalchemy import insert, select, update, delete, func, and_, or_
 from datetime import datetime, timedelta
 from fastapi import Depends, status
 from ..core.config import settings
@@ -64,16 +64,27 @@ async def get_inland_transport_by_id(id: int, db: Session) -> schemas.InlandTran
         raise exceptions.ResourceNotFound("Inland transport") 
     return schemas.InlandTransport.model_validate(inland_transport)
 
-async def get_inland_transports(db: Session, page: int = 1, limit: int = 10) -> schemas.Pagination[schemas.InlandTransport]:
-    stmt = inland_transport_view.order_by(models.InlandTransport.id).offset((page-1)*limit).limit(limit)
+async def get_inland_transports(db: Session, page: int = 1, limit: int = 10, source_id: int = None, warehouse_id: int = None) -> schemas.Pagination[schemas.InlandTransport]:
+    stmt = inland_transport_view.where(
+        and_(
+            or_(source_id is None, models.InlandTransport.source_id==source_id),
+            or_(warehouse_id is None, models.InlandTransport.warehouse_id==warehouse_id)
+        )                           
+    ).order_by(models.Source.state, models.Source.city, models.Warehouse.state, models.Warehouse.city, models.InlandTransport.id).offset((page-1)*limit).limit(limit)
     data = [schemas.InlandTransport.model_validate(inland_transport) for inland_transport in db.execute(stmt).mappings().all()]
-    total_rows = db.execute(select(func.count(models.InlandTransport.id))).scalar()
+    total_rows = db.execute(
+        select(func.count(models.InlandTransport.id)).where(
+            and_(
+                or_(source_id is None, models.InlandTransport.source_id==source_id),
+                or_(warehouse_id is None, models.InlandTransport.warehouse_id==warehouse_id)
+            )                           
+        ) 
+    ).scalar()
     total_pages = (total_rows + limit - 1) // limit
     response = schemas.Pagination[schemas.InlandTransport](data=data, total_rows=total_rows, total_pages=total_pages, current_page=page, limit=limit)
     return response
 
-
-async def get_inland_transport_between(source_id: int, warehouse_id: int, db: Session) -> float:
+async def get_cost_between(source_id: int, warehouse_id: int, db: Session) -> float:
     cost = db.execute(
         select(models.InlandTransport.cost).where(and_(
             models.InlandTransport.source_id==source_id,
