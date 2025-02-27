@@ -1,39 +1,50 @@
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, StringConstraints, field_validator
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Annotated
+
+NonEmptyStr = Annotated[str, StringConstraints(min_length=1)] 
 
 class Source(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
-    state: str
-    city: str
-    address: str
-    zipcode: str
+    state: NonEmptyStr
+    city: NonEmptyStr
+    address: NonEmptyStr
+    zipcode: NonEmptyStr
 
 class SourceCreate(BaseModel):
-    state: str
-    city: str
-    address: str
-    zipcode: str
+    state: NonEmptyStr
+    city: NonEmptyStr
+    address: NonEmptyStr
+    zipcode: NonEmptyStr
 
-    @field_validator("state", "city", "address", "zipcode")
-    @classmethod
-    def not_empty_str(cls, value, field):
-        if value.strip() == "":
-            raise ValueError(f"{field.name} must not be an empty string")
-        return value
-
+    @field_validator('state', mode='before')
+    def capitalize_string(cls, v):
+        if v:
+            return v.strip().upper()
+        return v
+    
+    @field_validator('city', 'address', 'zipcode', mode='before')
+    def capitalize_first_letter(cls, v):
+        if v:
+            return v.strip().title()
+        return v
 
 class SourceUpdate(BaseModel):
-    state: Optional[str] = None
-    city: Optional[str] = None
-    address: Optional[str] = None
-    zipcode: Optional[str] = None
+    state: Optional[NonEmptyStr] = None
+    city: Optional[NonEmptyStr] = None
+    address: Optional[NonEmptyStr] = None
+    zipcode: Optional[NonEmptyStr] = None
+
+    @field_validator('state', mode='before')
+    def capitalize_string(cls, v):
+        if v:
+            return v.strip().upper()
+        return v
     
-    @field_validator("state", "city", "address", "zipcode")
-    @classmethod
-    def not_empty_str(cls, value, field):
-        if value is not None and value.strip() == "":
-            raise ValueError(f"{field.name} must not be an empty string")
-        return value
+    @field_validator('city', 'address', 'zipcode', mode='before')
+    def capitalize_first_letter(cls, v):
+        if v:
+            return v.strip().title()
+        return v

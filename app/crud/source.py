@@ -18,7 +18,7 @@ async def create_source(data: schemas.SourceCreate, db: Session) -> schemas.Sour
 
 async def update_source(id: int, data: schemas.SourceUpdate, db: Session) -> schemas.Source:
     try:
-        values: dict = data.model_dump(exclude_none=True, exclude_unset=True)
+        values: dict = data.model_dump(exclude_unset=True)
         if values == {}:
             return await get_source_by_id(id, db)
         stmt = update(models.Source).values(**values).where(models.Source.id==id).returning(models.Source)
