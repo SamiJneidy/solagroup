@@ -11,8 +11,8 @@ async def get_maritime_transport_by_id(id: int, db: Session = Depends(get_db), c
     return await crud.maritime_transport.get_maritime_transport_by_id(id, db)
 
 @router.get(path="/get", response_model=schemas.Pagination[schemas.MaritimeTransport], status_code=status.HTTP_200_OK, tags=["Maritime Transport"])
-async def get_maritime_transports(page: int = 1, limit: int = 10, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
-    return await crud.maritime_transport.get_maritime_transports(db, page, limit)
+async def get_maritime_transports(page: int = 1, limit: int = 10, warehouse_id: int = None, shipping_line_id: int = None, destination_id: int = None, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
+    return await crud.maritime_transport.get_maritime_transports(db, warehouse_id, shipping_line_id, destination_id, page, limit)
 
 @router.post(path="/create", response_model=schemas.MaritimeTransport, status_code=status.HTTP_200_OK, tags=["Maritime Transport"])
 async def create_maritime_transport(data: schemas.MaritimeTransportCreate, db: Session = Depends(get_db), current_user = Depends(get_current_user)):

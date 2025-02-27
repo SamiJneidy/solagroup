@@ -8,4 +8,6 @@ class InlandTransport(Base):
     source_id = Column("source_id", Integer, ForeignKey("sources.id"), nullable=False)
     warehouse_id = Column("warehouse_id", Integer, ForeignKey("warehouses.id"), nullable=False)
     cost = Column("cost", Float, nullable=False)
-    __table_args__ = (UniqueConstraint('source_id', 'warehouse_id', name="unique_source_warehouse"),)
+    __table_args__ = (
+        UniqueConstraint('source_id', 'warehouse_id', name="unique_source_warehouse"),
+    )

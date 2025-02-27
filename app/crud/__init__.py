@@ -10,5 +10,6 @@ from . import (
     maritime_transport, 
     auction_fee,
     additional_settings,
-    estimate_cost
+    estimate_cost,
+    destination
 )

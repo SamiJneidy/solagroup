@@ -8,4 +8,5 @@ from .maritime_transport import MaritimeTransport, MaritimeTransportCreate, Mari
 from .auction_fee import AuctionFee, AuctionFeeUpdate
 from .additional_settings import AdditionalSettings, AdditionalSettingsUpdate
 from .estimate_cost import CarInfo, EstimateCostRequest, EstimateCostResponse
+from .destination import Destination, DestinationCreate, DestinationUpdate
 from .common import Pagination

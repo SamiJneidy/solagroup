@@ -38,13 +38,13 @@ class WarehouseUpdate(BaseModel):
 
     @field_validator('state', mode='before')
     def capitalize_string(cls, v):
-        if v:
-            return v.strip().upper()
-        return v
-    
+        if v is None:
+            raise ValueError("field cannot be null")
+        return v.strip().upper()
+
     @field_validator('city', 'address', 'zipcode', mode='before')
     def capitalize_first_letter(cls, v):
-        if v:
-            return v.strip().title()
-        return v
+        if v is None:
+            return v
+        return v.strip().title()
 

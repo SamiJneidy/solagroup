@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy import insert, select, update, delete, func, and_
+from sqlalchemy import insert, select, update, delete, func, and_, or_
 from datetime import datetime, timedelta
 from fastapi import Depends, status
 from ..core.config import settings
@@ -16,9 +16,15 @@ maritime_transport_view = select(
         
         models.Warehouse.id.label("warehouse_id"),
         models.Warehouse.state.label("warehouse_state"),
-        models.Warehouse.zipcode.label("warehouse_zipcode")
+        models.Warehouse.zipcode.label("warehouse_zipcode"),
+
+        models.Destination.id.label("destination_id"),
+        models.Destination.country.label("destination_country"),
+        models.Destination.port.label("destination_port"),
+
         ).join(models.ShippingLine, models.MaritimeTransport.shipping_line_id==models.ShippingLine.id
-        ).join(models.Warehouse, models.MaritimeTransport.warehouse_id==models.Warehouse.id)
+        ).join(models.Warehouse, models.MaritimeTransport.warehouse_id==models.Warehouse.id
+        ).join(models.Destination, models.MaritimeTransport.destination_id==models.Destination.id)
 
 async def create_maritime_transport(data: schemas.MaritimeTransportCreate, db: Session) -> schemas.MaritimeTransport:
     try:
@@ -61,22 +67,31 @@ async def get_maritime_transport_by_id(id: int, db: Session) -> schemas.Maritime
         raise exceptions.ResourceNotFound("Maritime transport") 
     return schemas.MaritimeTransport.model_validate(maritime_transport)
 
-async def get_maritime_transports(db: Session, page: int = 1, limit: int = 10) -> schemas.Pagination[schemas.MaritimeTransport]:
-    stmt = maritime_transport_view.order_by(models.Warehouse.state, models.Warehouse.city, models.ShippingLine.name, models.MaritimeTransport.id).offset((page-1)*limit).limit(limit)
+async def get_maritime_transports(db: Session, warehouse_id: int, shipping_line_id: int, destination_id: int, page: int, limit: int) -> schemas.Pagination[schemas.MaritimeTransport]:
+    where_clause = and_(
+        or_(warehouse_id is None, models.MaritimeTransport.warehouse_id==warehouse_id),
+        or_(shipping_line_id is None, models.MaritimeTransport.shipping_line_id==shipping_line_id),
+        or_(destination_id is None, models.MaritimeTransport.destination_id==destination_id),
+    )
+    stmt = maritime_transport_view.where(where_clause).order_by(models.Warehouse.state, models.Warehouse.city, models.ShippingLine.name, models.MaritimeTransport.id).offset((page-1)*limit).limit(limit)
     data = [schemas.MaritimeTransport.model_validate(maritime_transport) for maritime_transport in db.execute(stmt).mappings().all()]
-    total_rows = db.execute(select(func.count(models.MaritimeTransport.id))).scalar()
+    total_rows = db.execute(select(func.count()).select_from(maritime_transport_view.where(where_clause))).scalar()
     total_pages = (total_rows + limit - 1) // limit
     response = schemas.Pagination[schemas.MaritimeTransport](data=data, total_rows=total_rows, total_pages=total_pages, current_page=page, limit=limit)
     return response
 
-async def get_maritime_transport_between(warehouse_id: int, shipping_line_id: int, db: Session) -> float:
+async def get_maritime_transport_between(warehouse_id: int, shipping_line_id: int, destination_country: str, destination_port: str, db: Session) -> float:
+    from .destination import get_destinations
+    destination = await get_destinations(db, destination_country, destination_port, 1, 10)
+    destination_id = destination.data[0].id
     cost = db.execute(
         select(models.MaritimeTransport.cost).where(and_(
             models.MaritimeTransport.shipping_line_id==shipping_line_id,
             models.MaritimeTransport.warehouse_id==warehouse_id,
+            models.MaritimeTransport.destination_id==destination_id
             )
         )
     ).scalar()
     if cost is None:
-        raise exceptions.ResourceNotFound("Maritime Transport")
+        raise exceptions.ResourceNotFound("Maritime transport")
     return cost
