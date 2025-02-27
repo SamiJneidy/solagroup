@@ -7,15 +7,15 @@ class Warehouse(BaseModel):
 
     id: int
     state: str
-    city: str
-    address: str
-    zipcode: str
+    city: Optional[str]
+    address: Optional[str]
+    zipcode: Optional[str]
 
 class WarehouseCreate(BaseModel):
     state: str
-    city: str
-    address: str
-    zipcode: str
+    city: Optional[str] = None
+    address: Optional[str] = None
+    zipcode: Optional[str] = None
 
 class WarehouseUpdate(BaseModel):
     state: Optional[str] = None

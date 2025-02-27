@@ -14,7 +14,7 @@ async def create_shipping_line(data: schemas.ShippingLineCreate, db: Session) ->
     return schemas.ShippingLine.model_validate(inserted_shipping_line)
 
 async def update_shipping_line(id: int, data: schemas.ShippingLineUpdate, db: Session) -> schemas.ShippingLine:
-    values: dict = data.model_dump(exclude_none=True, exclude_unset=True)
+    values: dict = data.model_dump(exclude_unset=True)
     if values == {}:
         return await get_shipping_line_by_id(id, db)
     stmt = update(models.ShippingLine).values(**values).where(models.ShippingLine.id==id).returning(models.ShippingLine)

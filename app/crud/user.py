@@ -20,7 +20,7 @@ async def get_user_by_id(id: int, db: Session) -> schemas.User:
     return schemas.User.model_validate(user)
 
 async def get_users(db: Session, page: int = 1, limit: int = 10) -> schemas.Pagination[schemas.UserGet]:
-    stmt = select(models.User).order_by(models.User.id).offset((page-1)*limit).limit(limit)
+    stmt = select(models.User).order_by(models.User.username, models.User.id).offset((page-1)*limit).limit(limit)
     data = [schemas.UserGet.model_validate(user) for user in db.execute(stmt).scalars().all()]
     total_rows = db.execute(select(func.count(models.User.id))).scalar()
     total_pages = (total_rows + limit - 1) // limit

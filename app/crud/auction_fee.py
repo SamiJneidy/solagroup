@@ -9,7 +9,7 @@ from ..core import exceptions
 from .. import schemas, models
 
 async def update_auction_fee(id: int, data: schemas.AuctionFeeUpdate, db: Session) -> schemas.AuctionFee:
-    values: dict = data.model_dump(exclude_none=True, exclude_unset=True)
+    values: dict = data.model_dump(exclude_unset=True)
     if values == {}:
         return await get_auction_fee_by_id(id, db)
     stmt = update(models.AuctionFee).values(**values).where(models.AuctionFee.id==id).returning(models.AuctionFee)

@@ -18,7 +18,7 @@ async def create_warehouse(data: schemas.WarehouseCreate, db: Session) -> schema
 
 async def update_warehouse(id: int, data: schemas.WarehouseUpdate, db: Session) -> schemas.Warehouse:
     try:
-        values: dict = data.model_dump(exclude_none=True, exclude_unset=True)
+        values: dict = data.model_dump(exclude_unset=True)
         if values == {}:
             return await get_warehouse_by_id(id, db)
         stmt = update(models.Warehouse).values(**values).where(models.Warehouse.id==id).returning(models.Warehouse)

@@ -33,7 +33,7 @@ async def create_maritime_transport(data: schemas.MaritimeTransportCreate, db: S
 
 async def update_maritime_transport(id: int, data: schemas.MaritimeTransportUpdate, db: Session) -> schemas.MaritimeTransport:
     try:
-        values: dict = data.model_dump(exclude_none=True, exclude_unset=True)
+        values: dict = data.model_dump(exclude_unset=True)
         if values == {}:
             return await get_maritime_transport_by_id(id, db)
         stmt = update(models.MaritimeTransport).values(**values).where(models.MaritimeTransport.id==id).returning(models.MaritimeTransport)

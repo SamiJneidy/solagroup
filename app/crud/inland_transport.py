@@ -36,7 +36,7 @@ async def create_inland_transport(data: schemas.InlandTransportCreate, db: Sessi
 
 async def update_inland_transport(id: int, data: schemas.InlandTransportUpdate, db: Session) -> schemas.InlandTransport:
     try:
-        values: dict = data.model_dump(exclude_none=True, exclude_unset=True)
+        values: dict = data.model_dump(exclude_unset=True)
         if values == {}:
             return await get_inland_transport_by_id(id, db)
         stmt = update(models.InlandTransport).values(**values).where(models.InlandTransport.id==id).returning(models.InlandTransport)
@@ -64,22 +64,18 @@ async def get_inland_transport_by_id(id: int, db: Session) -> schemas.InlandTran
         raise exceptions.ResourceNotFound("Inland transport") 
     return schemas.InlandTransport.model_validate(inland_transport)
 
-async def get_inland_transports(db: Session, page: int = 1, limit: int = 10, source_id: int = None, warehouse_id: int = None) -> schemas.Pagination[schemas.InlandTransport]:
-    stmt = inland_transport_view.where(
-        and_(
-            or_(source_id is None, models.InlandTransport.source_id==source_id),
-            or_(warehouse_id is None, models.InlandTransport.warehouse_id==warehouse_id)
-        )                           
-    ).order_by(models.Source.state, models.Source.city, models.Warehouse.state, models.Warehouse.city, models.InlandTransport.id).offset((page-1)*limit).limit(limit)
+async def get_inland_transports(db: Session, source_state: str, source_city: str, source_address: str, source_zipcode: str, warehouse_state: str, warehouse_zipcode: str, page: int, limit: int) -> schemas.Pagination[schemas.InlandTransport]:
+    where_clause = and_(
+        or_(source_state is None, func.lower(models.Source.state)==func.lower(source_state)),
+        or_(source_city is None, func.lower(models.Source.city)==func.lower(source_city)),
+        or_(source_address is None, func.lower(models.Source.address)==func.lower(source_address)),
+        or_(source_zipcode is None, func.lower(models.Source.zipcode)==func.lower(source_zipcode)),
+        or_(warehouse_state is None, func.lower(models.Warehouse.state)==func.lower(warehouse_state)),
+        or_(warehouse_zipcode is None, func.lower(models.Warehouse.zipcode)==func.lower(warehouse_zipcode))
+    )  
+    stmt = inland_transport_view.where(where_clause).order_by(models.Source.state, models.Source.city, models.Warehouse.state, models.Warehouse.city, models.InlandTransport.id).offset((page-1)*limit).limit(limit)
     data = [schemas.InlandTransport.model_validate(inland_transport) for inland_transport in db.execute(stmt).mappings().all()]
-    total_rows = db.execute(
-        select(func.count(models.InlandTransport.id)).where(
-            and_(
-                or_(source_id is None, models.InlandTransport.source_id==source_id),
-                or_(warehouse_id is None, models.InlandTransport.warehouse_id==warehouse_id)
-            )                           
-        ) 
-    ).scalar()
+    total_rows = db.execute(select(func.count()).select_from(inland_transport_view.where(where_clause))).scalar()
     total_pages = (total_rows + limit - 1) // limit
     response = schemas.Pagination[schemas.InlandTransport](data=data, total_rows=total_rows, total_pages=total_pages, current_page=page, limit=limit)
     return response

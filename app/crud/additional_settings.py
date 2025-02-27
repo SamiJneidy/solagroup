@@ -9,7 +9,7 @@ from ..core import exceptions
 from .. import schemas, models
 
 async def update_additional_settings(data: schemas.AdditionalSettingsUpdate, db: Session) -> schemas.AdditionalSettings:
-    values: dict = data.model_dump(exclude_none=True, exclude_unset=True)
+    values: dict = data.model_dump(exclude_unset=True)
     if values == {}:
         return await get_additional_settings(db)
     stmt = update(models.AdditionalSettings).values(**values).returning(models.AdditionalSettings)
