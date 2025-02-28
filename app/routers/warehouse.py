@@ -19,6 +19,10 @@ async def get_warehouse_by_zipcode(zipcode: str, db: Session = Depends(get_db)):
 async def get_warehouses(page: int = 1, limit: int = 10, db: Session = Depends(get_db)):
     return await crud.warehouse.get_warehouses(db, page, limit)
 
+@router.get(path="/get/order-by-cost", response_model=schemas.Pagination[schemas.Warehouse], status_code=status.HTTP_200_OK, tags=["Warehouses"])
+async def get_warehouses_order_by_cost(page: int = 1, limit: int = 10, shipping_line_id: int = None, destination_country: str = None, destination_port: str = None, db: Session = Depends(get_db)):
+    return await crud.warehouse.get_warehouses_order_by_cost(db, shipping_line_id, destination_country, destination_port, page, limit)
+
 @router.post(path="/create", response_model=schemas.Warehouse, status_code=status.HTTP_200_OK, tags=["Warehouses"])
 async def create_warehouse(data: schemas.WarehouseCreate, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
     return await crud.warehouse.create_warehouse(data, db)
