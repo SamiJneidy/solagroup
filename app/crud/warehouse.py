@@ -59,7 +59,7 @@ async def get_warehouses(db: Session, page: int = 1, limit: int = 10) -> schemas
     response = schemas.Pagination[schemas.Warehouse](data=data, total_rows=total_rows, total_pages=total_pages, current_page=page, limit=limit)
     return response
 
-async def get_warehouses_order_by_cost(db: Session, shipping_line_id: int, destination_country: str, destination_port: str, page: int, limit: int) -> schemas.Pagination[schemas.Warehouse]:
+async def get_warehouses_order_by_cost(db: Session, source_id: int, shipping_line_id: int, destination_country: str, destination_port: str, page: int, limit: int) -> schemas.Pagination[schemas.Warehouse]:
     view = select(
         models.Warehouse.id,
         models.Warehouse.state,
@@ -79,6 +79,7 @@ async def get_warehouses_order_by_cost(db: Session, shipping_line_id: int, desti
         models.Warehouse.address,
     )
     where_clause = and_(
+        or_(source_id is None, models.InlandTransport.source_id==source_id),
         or_(shipping_line_id is None, models.MaritimeTransport.shipping_line_id==shipping_line_id),
         or_(destination_country is None, models.Destination.country==destination_country),
         or_(destination_port is None, models.Destination.port==destination_port),
