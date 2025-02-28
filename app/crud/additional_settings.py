@@ -17,10 +17,11 @@ async def update_additional_settings(data: schemas.AdditionalSettingsUpdate, db:
     db.commit()
     return additional_settings
 
-async def get_additional_settings(db: Session) -> schemas.AdditionalSettings:
+async def get_additional_settings(db: Session) -> schemas.Pagination[schemas.AdditionalSettings]:
     stmt = select(models.AdditionalSettings)
-    additional_settings = schemas.AdditionalSettings.model_validate(db.execute(stmt).scalars().first())
-    return additional_settings
+    data = schemas.AdditionalSettings.model_validate(db.execute(stmt).scalars().first())
+    response = schemas.Pagination[schemas.AdditionalSettings](data=data, total_rows=1, total_pages=1, current_page=1, limit=1)
+    return response
 
 async def get_additional_fee(db: Session) -> float:
     stmt = select(models.AdditionalSettings.additional_fee)
