@@ -18,7 +18,7 @@ async def estimate_cost(
     )
     maritime_transport_cost: float = (
         await maritime_transport.get_maritime_transport_between(
-            data.warehouse, data.shipping_line, db
+            data.warehouse, data.shipping_line, data.destination_country, data.destination_port, db
         )
     )
     auction_fee_amount: float = await auction_fee.get_auction_fee(
