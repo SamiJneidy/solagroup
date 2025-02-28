@@ -12,9 +12,11 @@ class EstimateCostRequest(BaseModel):
     amount: float
     auction: models.Auction
     source: int
-    warehouse: int
     shipping_line: int
     shipping_type: int
+    destination_country: str
+    destination_port: str
+    warehouse: int
     vin: Optional[str] = None
 
 class EstimateCostResponse(CarInfo):
