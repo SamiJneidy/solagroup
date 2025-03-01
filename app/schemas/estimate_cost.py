@@ -1,7 +1,7 @@
 from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 from typing import Optional
-from .. import models
+from .. import models, schemas
 
 class CarInfo(BaseModel):
     manufacturer: Optional[str] = None
@@ -10,7 +10,7 @@ class CarInfo(BaseModel):
 
 class EstimateCostRequest(BaseModel):
     amount: float
-    auction: models.Auction
+    auction: schemas.Auction
     source: int
     shipping_line: int
     shipping_type: int

@@ -26,9 +26,7 @@ async def get_auction_fee_by_id(id: int, db: Session) -> schemas.AuctionFee:
         raise exceptions.ResourceNotFound("Auction fee")
     return schemas.AuctionFee.model_validate(auction_fee)
 
-async def get_auction_fees(db: Session, page: int = 1, limit: int = 10, auction: str = None) -> schemas.Pagination[schemas.AuctionFee]:
-    if auction is not None and auction not in models.Auction.__members__:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Auction must be either 'COPART' or 'IAAI'")
+async def get_auction_fees(db: Session, page: int = 1, limit: int = 10, auction: Optional[schemas.Auction] = None) -> schemas.Pagination[schemas.AuctionFee]:
     stmt = select(models.AuctionFee).where(or_(auction==None, models.AuctionFee.auction==auction)).order_by(models.AuctionFee.id).offset((page-1)*limit).limit(limit)
     data = [schemas.AuctionFee.model_validate(auction_fee) for auction_fee in db.execute(stmt).scalars().all()]
     total_rows = db.execute(select(func.count(models.AuctionFee.id)).where(or_(auction==None, models.AuctionFee.auction==auction))).scalar()
@@ -36,7 +34,7 @@ async def get_auction_fees(db: Session, page: int = 1, limit: int = 10, auction:
     response = schemas.Pagination[schemas.AuctionFee](data=data, total_rows=total_rows, total_pages=total_pages, current_page=page, limit=limit)
     return response
 
-async def get_auction_fee(amount: float, auction: models.Auction, db: Session) -> float:
+async def get_auction_fee(amount: float, auction: schemas.Auction, db: Session) -> float:
     stmt = select(models.AuctionFee).where(and_(models.AuctionFee.auction==auction, models.AuctionFee.range_from <= amount, models.AuctionFee.range_to >= amount))
     auctioin_fee = db.execute(stmt).scalars().first()
     if auctioin_fee.range_to >= 0:

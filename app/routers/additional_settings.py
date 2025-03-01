@@ -7,10 +7,20 @@ from ..crud.authentication import get_current_user
 
 router = APIRouter(prefix="/additional-settings")
 
-@router.get(path="/get", response_model=schemas.Pagination[schemas.AdditionalSettings], status_code=status.HTTP_200_OK, tags=["Additional settings"])
+@router.get(
+    path="/get", 
+    response_model=schemas.Pagination[schemas.AdditionalSettings], 
+    status_code=status.HTTP_200_OK,
+    tags=["Additional Settings"]
+)
 async def get_additional_settings(db: Session = Depends(get_db), current_user = Depends(get_current_user)):
     return await crud.additional_settings.get_additional_settings(db)
 
-@router.put(path="/update", response_model=schemas.AdditionalSettingsUpdate, status_code=status.HTTP_200_OK, tags=["Additional settings"])
+@router.put(
+    path="/update", 
+    response_model=schemas.AdditionalSettingsUpdate, 
+    status_code=status.HTTP_200_OK, 
+    tags=["Additional Settings"]
+)
 async def update_additional_settings(data: schemas.AdditionalSettingsUpdate, current_user = Depends(get_current_user), db: Session = Depends(get_db)):
     return await crud.additional_settings.update_additional_settings(data, db)
