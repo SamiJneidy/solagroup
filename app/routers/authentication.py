@@ -11,18 +11,20 @@ router = APIRouter(
 
 @router.post(
     path="/login", 
-    response_model=schemas.LoginResponse, 
-    status_code=status.HTTP_200_OK, 
+    response_model=schemas.LoginResponse,
     responses={
+        status.HTTP_200_OK: {
+            "description": "Logged in successfully",
+        },
         status.HTTP_404_NOT_FOUND: {
             "description": "Username not found or Invalid credentials",
             "content": {
                 "application/json": {
                     "examples": {
-                        "Username Not Found": {
+                        "Username not found": {
                             "value": {"detail": "Username not found"}
                         },
-                        "Invalid Credentials": {
+                        "Invalid credentials": {
                             "value": {"detail": "Invalid credentials"}
                         }
                     }
@@ -33,13 +35,16 @@ router = APIRouter(
     tags=["Authentication"],
 )
 async def login(login_credentials: schemas.LoginCredentials, db: Session = Depends(get_db)):
+    """Used by admins to login to the dashboard"""
     return await authentication.login(login_credentials, db)
 
 @router.post(
     path="/signup", 
     response_model=schemas.UserGet, 
-    status_code=status.HTTP_200_OK, 
     responses={
+        status.HTTP_200_OK: {
+            "description": "Signed up successfully",
+        },
         status.HTTP_409_CONFLICT: {
             "description": "Username already in use",
             "content": {
@@ -56,8 +61,18 @@ async def login(login_credentials: schemas.LoginCredentials, db: Session = Depen
     tags=["Authentication"],
 )
 async def signup(data: schemas.UserCreate, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
+    """Used for adding a new admin to the dashboard"""
     return await authentication.signup(data, db)
 
-@router.post(path="/authorize", status_code=status.HTTP_200_OK, tags=["Authentication"])
+@router.post(
+    path="/authorize", 
+    responses={
+        status.HTTP_200_OK: {
+            "description": "Logged in successfully",
+        },
+    },
+    tags=["Authentication"]
+)
 async def authorize(login_credentials: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    """For SwaggerUI authentication"""
     return await authentication.swaggerUI_login(login_credentials, db)

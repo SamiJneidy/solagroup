@@ -7,6 +7,14 @@ from ..crud.authentication import get_current_user
 
 router = APIRouter(prefix="/estimate-cost")
 
-@router.post(path="", response_model=schemas.EstimateCostResponse, status_code=status.HTTP_200_OK, tags=["Estimate cost"])
-async def estimate_cost(data: schemas.EstimateCostRequest, db: Session = Depends(get_db)):
+
+@router.post(
+    path="",
+    response_model=schemas.EstimateCostResponse,
+    status_code=status.HTTP_200_OK,
+    tags=["Estimate cost"],
+)
+async def estimate_cost(
+    data: schemas.EstimateCostRequest, db: Session = Depends(get_db)
+):
     return await crud.estimate_cost.estimate_cost(data, db)

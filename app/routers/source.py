@@ -10,7 +10,23 @@ router = APIRouter(prefix="/sources")
 @router.get(
     path="/get/id/{id}",
     response_model=schemas.Source,
-    status_code=status.HTTP_200_OK,
+    responses = {
+        status.HTTP_200_OK: {
+            "description": "Successfully returned the source",
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "Source not found",
+            "content": {
+                "application/json": {
+                    "examples": {
+                        "Source not found": {
+                            "value": {"detail": "Source not found"}
+                        }
+                    }
+                }
+            },
+        },
+    },
     tags=["Sources"],
 )
 async def get_source_by_id(id: int, db: Session = Depends(get_db)):
@@ -20,7 +36,23 @@ async def get_source_by_id(id: int, db: Session = Depends(get_db)):
 @router.get(
     path="/get/zipcode/{zipcode}",
     response_model=schemas.Source,
-    status_code=status.HTTP_200_OK,
+        responses = {
+        status.HTTP_200_OK: {
+            "description": "Successfully returned the source",
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "Source not found",
+            "content": {
+                "application/json": {
+                    "examples": {
+                        "Source not found": {
+                            "value": {"detail": "Source not found"}
+                        }
+                    }
+                }
+            },
+        },
+    },
     tags=["Sources"],
 )
 async def get_source_by_zipcode(zipcode: str, db: Session = Depends(get_db)):
@@ -30,7 +62,11 @@ async def get_source_by_zipcode(zipcode: str, db: Session = Depends(get_db)):
 @router.get(
     path="/get",
     response_model=schemas.Pagination[schemas.Source],
-    status_code=status.HTTP_200_OK,
+    responses = {
+        status.HTTP_200_OK: {
+            "description": "Successfully returned the sources",
+        },
+    },
     tags=["Sources"],
 )
 async def get_sources(
@@ -50,7 +86,23 @@ async def get_sources(
 @router.post(
     path="/create",
     response_model=schemas.Source,
-    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_200_OK: {
+            "description": "Successfully created the source",
+        },
+        status.HTTP_409_CONFLICT: {
+            "description": "Zipcode already in use",
+            "content": {
+                "application/json": {
+                    "examples": {
+                        "Zipcode already in use": {
+                            "value": {"detail": "Zipcode already in use"}
+                        }
+                    }
+                }
+            }
+        },
+    },
     tags=["Sources"],
 )
 async def create_source(
@@ -64,20 +116,78 @@ async def create_source(
 @router.put(
     path="/update/{id}",
     response_model=schemas.Source,
-    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_200_OK: {
+            "description": "Successfully updated the source",
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "Source not found",
+            "content": {
+                "application/json": {
+                    "examples": {
+                        "Source not found": {
+                            "value": {"detail": "Source not found"}
+                        }
+                    }
+                }
+            },
+        },
+        status.HTTP_409_CONFLICT: {
+            "description": "Zipcode already in use",
+            "content": {
+                "application/json": {
+                    "examples": {
+                        "Zipcode already in use": {
+                            "value": {"detail": "Zipcode already in use"}
+                        }
+                    }
+                }
+            }
+        },
+    },
     tags=["Sources"],
 )
 async def update_source(
     id: int,
     data: schemas.SourceUpdate,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user = Depends(get_current_user),
 ):
     return await crud.source.update_source(id, data, db)
 
 
 @router.delete(
-    path="/delete/{id}", status_code=status.HTTP_204_NO_CONTENT, tags=["Sources"]
+    path="/delete/{id}", 
+    responses={
+        status.HTTP_204_NO_CONTENT: {
+            "description": "Successfully deleted the source",
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "Source not found",
+            "content": {
+                "application/json": {
+                    "examples": {
+                        "Source not found": {
+                            "value": {"detail": "Source not found"}
+                        }
+                    }
+                }
+            },
+        },
+        status.HTTP_409_CONFLICT: {
+            "description": "Source cannot be deleted because it is referenced by another table as a foreign key",
+            "content": {
+                "application/json": {
+                    "examples": {
+                        "Source cannot be deleted": {
+                            "value": {"detail": "Deletion failed, this record is referenced by another table and cannot be removed"}
+                        }
+                    }
+                }
+            },
+        },
+    },
+    tags=["Sources"]
 )
 async def delete_source(
     id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)

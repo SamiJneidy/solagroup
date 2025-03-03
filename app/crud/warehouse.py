@@ -14,7 +14,7 @@ async def create_warehouse(data: schemas.WarehouseCreate, db: Session) -> schema
         db.commit()
         return schemas.Warehouse.model_validate(inserted_warehouse)
     except IntegrityError:
-        raise exceptions.ResourceAlreadyInUse("Zipcode")
+        raise exceptions.ResourceAlreadyInUse(resource="Zipcode")
 
 async def update_warehouse(id: int, data: schemas.WarehouseUpdate, db: Session) -> schemas.Warehouse:
     try:
@@ -24,31 +24,34 @@ async def update_warehouse(id: int, data: schemas.WarehouseUpdate, db: Session) 
         stmt = update(models.Warehouse).values(**values).where(models.Warehouse.id==id).returning(models.Warehouse)
         warehouse = db.execute(stmt).scalars().first()
         if warehouse is None:
-            raise exceptions.ResourceNotFound("Warehouse")
+            raise exceptions.ResourceNotFound(resource="Warehouse")
         db.commit()
         return schemas.Warehouse.model_validate(warehouse)   
     except IntegrityError:
-        raise exceptions.ResourceAlreadyInUse("Zipcode")
+        raise exceptions.ResourceAlreadyInUse(resource="Zipcode")
 
 async def delete_warehouse(id: int, db: Session) -> None:
-    stmt = delete(models.Warehouse).where(models.Warehouse.id==id).returning(models.Warehouse)
-    warehouse = db.execute(stmt).scalars().first()
-    if warehouse is None:
-        raise exceptions.ResourceNotFound("Warehouse")
-    db.commit()
-
+    try:
+        stmt = delete(models.Warehouse).where(models.Warehouse.id==id).returning(models.Warehouse)
+        warehouse = db.execute(stmt).scalars().first()
+        if warehouse is None:
+            raise exceptions.ResourceNotFound(resource="Warehouse")
+        db.commit()
+    except IntegrityError:
+        raise exceptions.ForeignKeyConstraintViolation()
+    
 async def get_warehouse_by_id(id: int, db: Session) -> schemas.Warehouse:
     stmt = select(models.Warehouse).filter(models.Warehouse.id==id)
     warehouse = db.execute(stmt).scalars().first()
     if warehouse is None:
-        raise exceptions.ResourceNotFound("Warehouse")
+        raise exceptions.ResourceNotFound(resource="Warehouse")
     return schemas.Warehouse.model_validate(warehouse)
 
 async def get_warehouse_by_zipcode(zipcode: str, db: Session) -> schemas.Warehouse:
     stmt = select(models.Warehouse).filter(models.Warehouse.zipcode==zipcode)
     warehouse = db.execute(stmt).scalars().first()
     if warehouse is None:
-        raise exceptions.ResourceNotFound("Warehouse")
+        raise exceptions.ResourceNotFound(resource="Warehouse")
     return schemas.Warehouse.model_validate(warehouse)
 
 async def get_warehouses(db: Session, page: int = 1, limit: int = 10) -> schemas.Pagination[schemas.Warehouse]:

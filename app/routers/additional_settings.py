@@ -9,8 +9,12 @@ router = APIRouter(prefix="/additional-settings")
 
 @router.get(
     path="/get", 
-    response_model=schemas.Pagination[schemas.AdditionalSettings], 
-    status_code=status.HTTP_200_OK,
+    response_model=schemas.Pagination[schemas.AdditionalSettings],
+    responses = {
+        status.HTTP_200_OK: {
+            "description": "Additional settings returned successfully",
+        }
+    },
     tags=["Additional Settings"]
 )
 async def get_additional_settings(db: Session = Depends(get_db), current_user = Depends(get_current_user)):
@@ -18,8 +22,12 @@ async def get_additional_settings(db: Session = Depends(get_db), current_user = 
 
 @router.put(
     path="/update", 
-    response_model=schemas.AdditionalSettingsUpdate, 
-    status_code=status.HTTP_200_OK, 
+    response_model=schemas.AdditionalSettingsUpdate,
+        responses = {
+        status.HTTP_200_OK: {
+            "description": "Additional settings updated successfully",
+        }
+    },
     tags=["Additional Settings"]
 )
 async def update_additional_settings(data: schemas.AdditionalSettingsUpdate, current_user = Depends(get_current_user), db: Session = Depends(get_db)):

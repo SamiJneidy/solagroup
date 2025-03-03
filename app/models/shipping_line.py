@@ -5,3 +5,7 @@ class ShippingLine(Base):
     __tablename__ = "shipping_lines"
     id = Column("id", Integer, primary_key=True, autoincrement=True, index=True)
     name = Column("name", String, nullable=False, index=True)
+
+    __table_args__ = (
+        UniqueConstraint('name', name="unique_name"),
+    )

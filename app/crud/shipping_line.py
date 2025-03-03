@@ -8,34 +8,43 @@ from ..core import exceptions
 from .. import schemas, models
 
 async def create_shipping_line(data: schemas.ShippingLineCreate, db: Session) -> schemas.ShippingLine:
-    stmt = insert(models.ShippingLine).values(**data.model_dump()).returning(models.ShippingLine)
-    inserted_shipping_line = db.execute(stmt).scalars().first()
-    db.commit()
-    return schemas.ShippingLine.model_validate(inserted_shipping_line)
-
+    try:
+        stmt = insert(models.ShippingLine).values(**data.model_dump()).returning(models.ShippingLine)
+        inserted_shipping_line = db.execute(stmt).scalars().first()
+        db.commit()
+        return schemas.ShippingLine.model_validate(inserted_shipping_line)
+    except IntegrityError:
+        raise exceptions.ResourceAlreadyInUse(resource="Shipping line")
+    
 async def update_shipping_line(id: int, data: schemas.ShippingLineUpdate, db: Session) -> schemas.ShippingLine:
-    values: dict = data.model_dump(exclude_unset=True)
-    if values == {}:
-        return await get_shipping_line_by_id(id, db)
-    stmt = update(models.ShippingLine).values(**values).where(models.ShippingLine.id==id).returning(models.ShippingLine)
-    source = db.execute(stmt).scalars().first()
-    if source is None:
-        raise exceptions.ResourceNotFound("Shipping line")
-    db.commit()
-    return schemas.ShippingLine.model_validate(source)
-
+    try:
+        values: dict = data.model_dump(exclude_unset=True)
+        if values == {}:
+            return await get_shipping_line_by_id(id, db)
+        stmt = update(models.ShippingLine).values(**values).where(models.ShippingLine.id==id).returning(models.ShippingLine)
+        source = db.execute(stmt).scalars().first()
+        if source is None:
+            raise exceptions.ResourceNotFound(resource="Shipping line")
+        db.commit()
+        return schemas.ShippingLine.model_validate(source)
+    except IntegrityError:
+        raise exceptions.ResourceAlreadyInUse(resource="Shipping line")
+    
 async def delete_shipping_line(id: int, db: Session) -> None:
-    stmt = delete(models.ShippingLine).where(models.ShippingLine.id==id).returning(models.ShippingLine)
-    source = db.execute(stmt).scalars().first()
-    if source is None:
-        raise exceptions.ResourceNotFound("Shipping line") 
-    db.commit()
-
+    try:
+        stmt = delete(models.ShippingLine).where(models.ShippingLine.id==id).returning(models.ShippingLine)
+        source = db.execute(stmt).scalars().first()
+        if source is None:
+            raise exceptions.ResourceNotFound(resource="Shipping line") 
+        db.commit()
+    except IntegrityError:
+        raise exceptions.ForeignKeyConstraintViolation()
+    
 async def get_shipping_line_by_id(id: int, db: Session) -> schemas.ShippingLine:
     stmt = select(models.ShippingLine).filter(models.ShippingLine.id==id)
     source = db.execute(stmt).scalars().first()
     if source is None:
-        raise exceptions.ResourceNotFound("Shipping line") 
+        raise exceptions.ResourceNotFound(resource="Shipping line") 
     return schemas.ShippingLine.model_validate(source)
 
 async def get_shipping_lines(db: Session, page: int = 1, limit: int = 10) -> schemas.Pagination[schemas.ShippingLine]:

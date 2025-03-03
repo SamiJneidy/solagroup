@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from fastapi import Depends, status
 from ..core.config import settings
 from ..core import exceptions
-from .. import schemas, models
+from .. import schemas, models, utils
 
 maritime_transport_view = select(
         models.MaritimeTransport.id.label("id"),
@@ -34,8 +34,8 @@ async def create_maritime_transport(data: schemas.MaritimeTransportCreate, db: S
         return await get_maritime_transport_by_id(inserted_maritime_transport_id, db)
     except IntegrityError as e:
         db.rollback()
-        error_message = str(e.orig)
-        raise exceptions.HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=error_message)
+        error_message = str(e.orig)        
+        raise exceptions.classify_foreign_key_violation(error_message, "Maritime transport")
 
 async def update_maritime_transport(id: int, data: schemas.MaritimeTransportUpdate, db: Session) -> schemas.MaritimeTransport:
     try:
@@ -45,26 +45,26 @@ async def update_maritime_transport(id: int, data: schemas.MaritimeTransportUpda
         stmt = update(models.MaritimeTransport).values(**values).where(models.MaritimeTransport.id==id).returning(models.MaritimeTransport)
         maritime_transport = db.execute(stmt).scalars().first()
         if maritime_transport is None:
-            raise exceptions.ResourceNotFound("Maritime transport")
+            raise exceptions.ResourceNotFound(resource="Maritime transport")
         db.commit()
         return await get_maritime_transport_by_id(id, db)
     except IntegrityError as e:
         db.rollback()
         error_message = str(e.orig)
-        raise exceptions.HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=error_message)
+        raise exceptions.classify_foreign_key_violation(error_message, "Maritime transport")
 
 async def delete_maritime_transport(id: int, db: Session) -> None:
     stmt = delete(models.MaritimeTransport).where(models.MaritimeTransport.id==id).returning(models.MaritimeTransport)
     maritime_transport = db.execute(stmt).scalars().first()
     if maritime_transport is None:
-        raise exceptions.ResourceNotFound("Maritime transport") 
+        raise exceptions.ResourceNotFound(resource="Maritime transport") 
     db.commit()
 
 async def get_maritime_transport_by_id(id: int, db: Session) -> schemas.MaritimeTransport:
     stmt = maritime_transport_view.filter(models.MaritimeTransport.id==id)
     maritime_transport = db.execute(stmt).mappings().first()
     if maritime_transport is None:
-        raise exceptions.ResourceNotFound("Maritime transport") 
+        raise exceptions.ResourceNotFound(resource="Maritime transport") 
     return schemas.MaritimeTransport.model_validate(maritime_transport)
 
 async def get_maritime_transports(db: Session, warehouse_id: int, shipping_line_id: int, destination_id: int, page: int, limit: int) -> schemas.Pagination[schemas.MaritimeTransport]:
@@ -94,5 +94,5 @@ async def get_maritime_transport_between(warehouse_id: int, shipping_line_id: in
         )
     ).scalar()
     if cost is None:
-        raise exceptions.ResourceNotFound("Maritime transport")
+        raise exceptions.ResourceNotFound(resource="Maritime transport")
     return cost

@@ -10,7 +10,23 @@ router = APIRouter(prefix="/inland-transport")
 @router.get(
     path="/get/id/{id}",
     response_model=schemas.InlandTransport,
-    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_200_OK: {
+            "description": "Successfully returned the inland transport",
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "Inland transport not found",
+            "content": {
+                "application/json": {
+                    "examples": {
+                        "Inland transport Not Found": {
+                            "value": {"detail": "Inland transport not found"}
+                        }
+                    }
+                }
+            },
+        },
+    },
     tags=["Inland Transport"],
 )
 async def get_inland_transport_by_id(
@@ -22,7 +38,11 @@ async def get_inland_transport_by_id(
 @router.get(
     path="/get",
     response_model=schemas.Pagination[schemas.InlandTransport],
-    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_200_OK: {
+            "description": "Successfully returned the inland transports",
+        },
+    },
     tags=["Inland Transport"],
 )
 async def get_inland_transports(
@@ -35,7 +55,6 @@ async def get_inland_transports(
     warehouse_state: str = None,
     warehouse_zipcode: str = None,
     db: Session = Depends(get_db),
-    # current_user=Depends(get_current_user),
 ):
     return await crud.inland_transport.get_inland_transports(
         db,
@@ -53,7 +72,38 @@ async def get_inland_transports(
 @router.post(
     path="/create",
     response_model=schemas.InlandTransport,
-    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_200_OK: {
+            "description": "Successfully created the inland transport",
+        },
+        status.HTTP_400_BAD_REQUEST: {
+            "description": "Foreign key constraint violation",
+            "content": {
+                "application/json": {
+                    "examples": {
+                        "Data sent does not exist in the related table": {
+                            "value": {"detail": "Foreign key constraint violation, the data sent does not exist in the related table"}
+                        },
+                        "Other violation reason": {
+                            "value": {"detail": "Foreign key constraint violation"}
+                        }
+                    }
+                }
+            }
+        },
+        status.HTTP_409_CONFLICT: {
+            "description": "Inland transport already in use",
+            "content": {
+                "application/json": {
+                    "examples": {
+                        "Inland transport already in use": {
+                            "value": {"detail": "Inland transport already in use"}
+                        }
+                    }
+                }
+            }
+        },
+    },
     tags=["Inland Transport"],
 )
 async def create_inland_transport(
@@ -67,25 +117,84 @@ async def create_inland_transport(
 @router.put(
     path="/update/{id}",
     response_model=schemas.InlandTransport,
-    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_200_OK: {
+            "description": "Successfully updated the inland transport",
+        },
+        status.HTTP_400_BAD_REQUEST: {
+            "description": "Foreign key constraint violation",
+            "content": {
+                "application/json": {
+                    "examples": {
+                        "Data sent does not exist in the related table": {
+                            "value": {"detail": "Foreign key constraint violation, the data sent does not exist in the related table"}
+                        },
+                        "Other violation reason": {
+                            "value": {"detail": "Foreign key constraint violation"}
+                        }
+                    }
+                }
+            }
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "Inland transport not found",
+            "content": {
+                "application/json": {
+                    "examples": {
+                        "Inland transport Not Found": {
+                            "value": {"detail": "Inland transport not found"}
+                        }
+                    }
+                }
+            },
+        },
+        status.HTTP_409_CONFLICT: {
+            "description": "Inland transport already in use",
+            "content": {
+                "application/json": {
+                    "examples": {
+                        "Inland transport already in use": {
+                            "value": {"detail": "Inland transport already in use"}
+                        }
+                    }
+                }
+            }
+        },
+    },
     tags=["Inland Transport"],
 )
 async def update_inland_transport(
     id: int,
     data: schemas.InlandTransportUpdate,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user = Depends(get_current_user),
 ):
     return await crud.inland_transport.update_inland_transport(id, data, db)
 
 
 @router.delete(
     path="/delete/{id}",
-    status_code=status.HTTP_204_NO_CONTENT,
+    responses = {
+        status.HTTP_204_NO_CONTENT: {
+            "description": "Successfully deleted the inland transport",
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "Inland transport not found",
+            "content": {
+                "application/json": {
+                    "examples": {
+                        "Inland transport Not Found": {
+                            "value": {"detail": "Inland transport not found"}
+                        }
+                    }
+                }
+            },
+        },
+    },
     tags=["Inland Transport"],
 )
 async def delete_inland_transport(
-    id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)
+    id: int, db: Session = Depends(get_db), current_user = Depends(get_current_user)
 ):
     return await crud.inland_transport.delete_inland_transport(id, db)
 

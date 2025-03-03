@@ -15,7 +15,7 @@ async def update_auction_fee(id: int, data: schemas.AuctionFeeUpdate, db: Sessio
     stmt = update(models.AuctionFee).values(**values).where(models.AuctionFee.id==id).returning(models.AuctionFee)
     auction_fee = db.execute(stmt).scalars().first()
     if auction_fee is None:
-        raise exceptions.ResourceNotFound("Auction fee")
+        raise exceptions.ResourceNotFound(resource="Auction fee")
     db.commit()
     return schemas.AuctionFee.model_validate(auction_fee)
 
@@ -23,7 +23,7 @@ async def get_auction_fee_by_id(id: int, db: Session) -> schemas.AuctionFee:
     stmt = select(models.AuctionFee).filter(models.AuctionFee.id==id)
     auction_fee = db.execute(stmt).scalars().first()
     if auction_fee is None:
-        raise exceptions.ResourceNotFound("Auction fee")
+        raise exceptions.ResourceNotFound(resource="Auction fee")
     return schemas.AuctionFee.model_validate(auction_fee)
 
 async def get_auction_fees(db: Session, page: int = 1, limit: int = 10, auction: Optional[schemas.Auction] = None) -> schemas.Pagination[schemas.AuctionFee]:

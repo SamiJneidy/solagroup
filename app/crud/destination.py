@@ -14,7 +14,7 @@ async def create_destination(data: schemas.DestinationCreate, db: Session) -> sc
         db.commit()
         return schemas.Destination.model_validate(inserted_destination)
     except IntegrityError:
-        raise exceptions.ResourceAlreadyInUse("Destination")
+        raise exceptions.ResourceAlreadyInUse(resource="Destination")
 
 async def update_destination(id: int, data: schemas.DestinationUpdate, db: Session) -> schemas.Destination:
     try:
@@ -24,24 +24,27 @@ async def update_destination(id: int, data: schemas.DestinationUpdate, db: Sessi
         stmt = update(models.Destination).values(**values).where(models.Destination.id==id).returning(models.Destination)
         destination = db.execute(stmt).scalars().first()
         if destination is None:
-            raise exceptions.ResourceNotFound("Destination")
+            raise exceptions.ResourceNotFound(resource="Destination")
         db.commit()
         return schemas.Destination.model_validate(destination)   
     except IntegrityError:
-        raise exceptions.ResourceAlreadyInUse("Destination")
+        raise exceptions.ResourceAlreadyInUse(resource="Destination")
 
 async def delete_destination(id: int, db: Session) -> None:
-    stmt = delete(models.Destination).where(models.Destination.id==id).returning(models.Destination)
-    destination = db.execute(stmt).scalars().first()
-    if destination is None:
-        raise exceptions.ResourceNotFound("Destination") 
-    db.commit()
+    try:
+        stmt = delete(models.Destination).where(models.Destination.id==id).returning(models.Destination)
+        destination = db.execute(stmt).scalars().first()
+        if destination is None:
+            raise exceptions.ResourceNotFound(resource="Destination") 
+        db.commit()
+    except IntegrityError:
+        raise exceptions.ForeignKeyConstraintViolation()
 
 async def get_destination_by_id(id: int, db: Session) -> schemas.Destination:
     stmt = select(models.Destination).filter(models.Destination.id==id)
     destination = db.execute(stmt).scalars().first()
     if destination is None:
-        raise exceptions.ResourceNotFound("Destination") 
+        raise exceptions.ResourceNotFound(resource="Destination") 
     return schemas.Destination.model_validate(destination)
 
 async def get_destinations(db: Session, country: str, port: str, page: int, limit: int) -> schemas.Pagination[schemas.Destination]:

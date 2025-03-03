@@ -2,10 +2,10 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import insert, select, update, delete, func, and_, or_
 from datetime import datetime, timedelta
-from fastapi import Depends, status
+from fastapi import status
 from ..core.config import settings
 from ..core import exceptions
-from .. import schemas, models
+from .. import schemas, models, utils
 
 inland_transport_view = select(
         models.InlandTransport.id.label("id"),
@@ -32,7 +32,7 @@ async def create_inland_transport(data: schemas.InlandTransportCreate, db: Sessi
     except IntegrityError as e:
         db.rollback()
         error_message = str(e.orig)
-        raise exceptions.HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=error_message)
+        raise exceptions.classify_foreign_key_violation(error_message, "Inland transport")
 
 async def update_inland_transport(id: int, data: schemas.InlandTransportUpdate, db: Session) -> schemas.InlandTransport:
     try:
@@ -42,26 +42,26 @@ async def update_inland_transport(id: int, data: schemas.InlandTransportUpdate, 
         stmt = update(models.InlandTransport).values(**values).where(models.InlandTransport.id==id).returning(models.InlandTransport)
         inland_transport = db.execute(stmt).scalars().first()
         if inland_transport is None:
-            raise exceptions.ResourceNotFound("Inland transport")
+            raise exceptions.ResourceNotFound(resource="Inland transport")
         db.commit()
         return await get_inland_transport_by_id(id, db)
     except IntegrityError as e:
         db.rollback()
         error_message = str(e.orig)
-        raise exceptions.HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=error_message)
+        raise exceptions.classify_foreign_key_violation(error_message, "Inland transport")
 
 async def delete_inland_transport(id: int, db: Session) -> None:
     stmt = delete(models.InlandTransport).where(models.InlandTransport.id==id).returning(models.InlandTransport)
     inland_transport = db.execute(stmt).scalars().first()
     if inland_transport is None:
-        raise exceptions.ResourceNotFound("Inland transport") 
+        raise exceptions.ResourceNotFound(resource="Inland transport") 
     db.commit()
 
 async def get_inland_transport_by_id(id: int, db: Session) -> schemas.InlandTransport:
     stmt = inland_transport_view.filter(models.InlandTransport.id==id)
     inland_transport = db.execute(stmt).mappings().first()
     if inland_transport is None:
-        raise exceptions.ResourceNotFound("Inland transport") 
+        raise exceptions.ResourceNotFound(resource="Inland transport") 
     return schemas.InlandTransport.model_validate(inland_transport)
 
 async def get_inland_transports(db: Session, source_state: str, source_city: str, source_address: str, source_zipcode: str, warehouse_state: str, warehouse_zipcode: str, page: int, limit: int) -> schemas.Pagination[schemas.InlandTransport]:
@@ -89,5 +89,5 @@ async def get_cost_between(source_id: int, warehouse_id: int, db: Session) -> fl
         )
     ).scalar()
     if cost is None:
-        raise exceptions.ResourceNotFound("Inland Transport")
+        raise exceptions.ResourceNotFound(resource="Inland Transport")
     return cost

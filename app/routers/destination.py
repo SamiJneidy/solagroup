@@ -7,23 +7,159 @@ from ..crud.authentication import get_current_user
 router = APIRouter(prefix="/destinations")
 
 
-@router.get(path="/get/id/{id}", response_model=schemas.Destination, status_code=status.HTTP_200_OK, tags=["Destinations"])
+@router.get(
+    path="/get/id/{id}",
+    response_model=schemas.Destination,
+    responses={
+        status.HTTP_200_OK: {
+            "description": "Successfully returned the destination",
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "Destination not found",
+            "content": {
+                "application/json": {
+                    "examples": {
+                        "Destination not found": {
+                            "value": {"detail": "Destination not found"}
+                        }
+                    }
+                }
+            },
+        },
+    },
+    tags=["Destinations"],
+)
 async def get_destination_by_id(id: int, db: Session = Depends(get_db)):
     return await crud.destination.get_destination_by_id(id, db)
 
-@router.get(path="/get", response_model=schemas.Pagination[schemas.Destination], status_code=status.HTTP_200_OK, tags=["Destinations"])
-async def get_destinations(page: int = 1, limit: int = 10, country: str = None, port: str = None, db: Session = Depends(get_db)):
+
+@router.get(
+    path="/get",
+    response_model=schemas.Pagination[schemas.Destination],
+    responses={
+        status.HTTP_200_OK: {
+            "description": "Successfully returned the destinations",
+        },
+    },
+    tags=["Destinations"],
+)
+async def get_destinations(
+    page: int = 1,
+    limit: int = 10,
+    country: str = None,
+    port: str = None,
+    db: Session = Depends(get_db),
+):
     return await crud.destination.get_destinations(db, country, port, page, limit)
 
-@router.post(path="/create", response_model=schemas.Destination, status_code=status.HTTP_200_OK, tags=["Destinations"])
-async def create_destination(data: schemas.DestinationCreate, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
+
+@router.post(
+    path="/create",
+    response_model=schemas.Destination,
+    responses={
+        status.HTTP_200_OK: {
+            "description": "Successfully created the destination",
+        },
+        status.HTTP_409_CONFLICT: {
+            "description": "Duplicate entry: The specified country and port combination already exists. Please use a different combination",
+            "content": {
+                "application/json": {
+                    "examples": {
+                        "Destination already in use": {
+                            "value": {"detail": "Destination already in use"}
+                        }
+                    }
+                }
+            }
+        },
+    },
+    tags=["Destinations"],
+)
+async def create_destination(
+    data: schemas.DestinationCreate,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
     return await crud.destination.create_destination(data, db)
 
-@router.put(path="/update/{id}", response_model=schemas.Destination, status_code=status.HTTP_200_OK, tags=["Destinations"])
-async def update_destination(id: int, data: schemas.DestinationUpdate, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
+
+@router.put(
+    path="/update/{id}",
+    response_model=schemas.Destination,
+    responses={
+        status.HTTP_200_OK: {
+            "description": "Successfully updated the destination",
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "Destination not found",
+            "content": {
+                "application/json": {
+                    "examples": {
+                        "Destination not found": {
+                            "value": {"detail": "Destination not found"}
+                        }
+                    }
+                }
+            },
+        },
+        status.HTTP_409_CONFLICT: {
+            "description": "Duplicate entry: The specified country and port combination already exists. Please use a different combination",
+            "content": {
+                "application/json": {
+                    "examples": {
+                        "Destination already in use": {
+                            "value": {"detail": "Destination already in use"}
+                        }
+                    }
+                }
+            }
+        },
+    },
+    tags=["Destinations"],
+)
+async def update_destination(
+    id: int,
+    data: schemas.DestinationUpdate,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
     return await crud.destination.update_destination(id, data, db)
 
-@router.delete(path="/delete/{id}", status_code=status.HTTP_204_NO_CONTENT, tags=["Destinations"])
-async def delete_destination(id: int, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
-    return await crud.destination.delete_destination(id, db)
 
+@router.delete(
+    path="/delete/{id}", 
+    responses={
+        status.HTTP_204_NO_CONTENT: {
+            "description": "Successfully deleted the destination",
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "Destination not found",
+            "content": {
+                "application/json": {
+                    "examples": {
+                        "Destination not found": {
+                            "value": {"detail": "Destination not found"}
+                        }
+                    }
+                }
+            },
+        },
+        status.HTTP_409_CONFLICT: {
+            "description": "Destination cannot be deleted because it is referenced by another table as a foreign key",
+            "content": {
+                "application/json": {
+                    "examples": {
+                        "Destination cannot be deleted": {
+                            "value": {"detail": "Deletion failed, this record is referenced by another table and cannot be removed"}
+                        }
+                    }
+                }
+            },
+        },
+    },
+    tags=["Destinations"]
+)
+async def delete_destination(
+    id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)
+):
+    return await crud.destination.delete_destination(id, db)

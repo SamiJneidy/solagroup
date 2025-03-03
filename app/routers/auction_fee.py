@@ -11,14 +11,16 @@ router = APIRouter(prefix="/auction-fees")
 @router.get(
     path="/get/id/{id}",
     response_model=schemas.AuctionFee,
-    status_code=status.HTTP_200_OK,
     responses={
+        status.HTTP_200_OK: {
+            "description": "Auction fee returned successfully",
+        },
         status.HTTP_404_NOT_FOUND: {
             "description": "Auction fee not found",
             "content": {
                 "application/json": {
                     "examples": {
-                        "Auction fee Not Found": {
+                        "Auction fee not found": {
                             "value": {"detail": "Auction fee not found"}
                         }
                     }
@@ -37,14 +39,17 @@ async def get_auction_fee_by_id(
 @router.get(
     path="/get",
     response_model=schemas.Pagination[schemas.AuctionFee],
-    status_code=status.HTTP_200_OK,
+    responses = {
+        status.HTTP_200_OK: {
+            "description": "Auction fees returned successfully",
+        },
+    },
     tags=["Auction fees"],
 )
 async def get_auction_fees(
     page: int = 1,
     limit: int = 10,
     auction: Optional[schemas.Auction] = None,
-    # auction: str = Query(None, description="Enter 'COPART' or 'IAAI'"),
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user),
 ):
@@ -55,6 +60,23 @@ async def get_auction_fees(
     path="/update/{id}",
     response_model=schemas.AuctionFee,
     status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_200_OK: {
+            "description": "Auction fee updated successfully",
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "Auction fee not found",
+            "content": {
+                "application/json": {
+                    "examples": {
+                        "Auction fee Not Found": {
+                            "value": {"detail": "Auction fee not found"}
+                        }
+                    }
+                }
+            }
+        },
+    },
     tags=["Auction fees"],
 )
 async def update_auction_fee(

@@ -14,7 +14,7 @@ async def create_source(data: schemas.SourceCreate, db: Session) -> schemas.Sour
         db.commit()
         return schemas.Source.model_validate(inserted_source)
     except IntegrityError:
-        raise exceptions.ResourceAlreadyInUse("Zipcode")
+        raise exceptions.ResourceAlreadyInUse(resource="Zipcode")
 
 async def update_source(id: int, data: schemas.SourceUpdate, db: Session) -> schemas.Source:
     try:
@@ -24,31 +24,34 @@ async def update_source(id: int, data: schemas.SourceUpdate, db: Session) -> sch
         stmt = update(models.Source).values(**values).where(models.Source.id==id).returning(models.Source)
         source = db.execute(stmt).scalars().first()
         if source is None:
-            raise exceptions.ResourceNotFound("Source")
+            raise exceptions.ResourceNotFound(resource="Source")
         db.commit()
         return schemas.Source.model_validate(source)   
     except IntegrityError:
-        raise exceptions.ResourceAlreadyInUse("Zipcode")
+        raise exceptions.ResourceAlreadyInUse(resource="Zipcode")
 
 async def delete_source(id: int, db: Session) -> None:
-    stmt = delete(models.Source).where(models.Source.id==id).returning(models.Source)
-    source = db.execute(stmt).scalars().first()
-    if source is None:
-        raise exceptions.ResourceNotFound("Source") 
-    db.commit()
-
+    try:
+        stmt = delete(models.Source).where(models.Source.id==id).returning(models.Source)
+        source = db.execute(stmt).scalars().first()
+        if source is None:
+            raise exceptions.ResourceNotFound(resource="Source") 
+        db.commit()
+    except IntegrityError:
+        raise exceptions.ForeignKeyConstraintViolation()
+    
 async def get_source_by_id(id: int, db: Session) -> schemas.Source:
     stmt = select(models.Source).filter(models.Source.id==id)
     source = db.execute(stmt).scalars().first()
     if source is None:
-        raise exceptions.ResourceNotFound("Source") 
+        raise exceptions.ResourceNotFound(resource="Source") 
     return schemas.Source.model_validate(source)
 
 async def get_source_by_zipcode(zipcode: str, db: Session) -> schemas.Source:
     stmt = select(models.Source).filter(models.Source.zipcode==zipcode)
     source = db.execute(stmt).scalars().first()
     if source is None:
-        raise exceptions.ResourceNotFound("Source") 
+        raise exceptions.ResourceNotFound(resource="Source") 
     return schemas.Source.model_validate(source)
 
 async def get_sources(db: Session, source_state: str, source_city: str, source_address: str, source_zipcode: str, page: int, limit: int) -> schemas.Pagination[schemas.Source]:
