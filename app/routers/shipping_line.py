@@ -4,7 +4,10 @@ from .. import schemas, crud
 from ..core.database import get_db
 from ..crud.authentication import get_current_user
 
-router = APIRouter(prefix="/shipping-lines")
+router = APIRouter(
+    prefix="/shipping-lines",
+    tags=["Shipping Lines"],
+)
 
 
 @router.get(
@@ -27,7 +30,6 @@ router = APIRouter(prefix="/shipping-lines")
             },
         },
     },
-    tags=["Shipping lines"],
 )
 async def get_shipping_line_by_id(id: int, db: Session = Depends(get_db)):
     return await crud.shipping_line.get_shipping_line_by_id(id, db)
@@ -41,7 +43,6 @@ async def get_shipping_line_by_id(id: int, db: Session = Depends(get_db)):
             "description": "Successfully returned the shipping lines",
         },
     },
-    tags=["Shipping lines"],
 )
 async def get_shipping_line(
     page: int = 1, limit: int = 10, db: Session = Depends(get_db)
@@ -69,7 +70,6 @@ async def get_shipping_line(
             }
         },
     },
-    tags=["Shipping lines"],
 )
 async def create_shipping_line(
     data: schemas.ShippingLineCreate,
@@ -111,7 +111,6 @@ async def create_shipping_line(
             }
         },
     },
-    tags=["Shipping lines"],
 )
 async def update_shipping_line(
     id: int,

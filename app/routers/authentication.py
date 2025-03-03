@@ -6,7 +6,8 @@ from ..crud import authentication
 from ..crud.authentication import get_current_user, OAuth2PasswordRequestForm
 
 router = APIRouter(
-    prefix="/auth"
+    prefix="/auth",
+    tags=["Authentication"],
 )
 
 @router.post(
@@ -32,7 +33,6 @@ router = APIRouter(
             }
         }
     },
-    tags=["Authentication"],
 )
 async def login(login_credentials: schemas.LoginCredentials, db: Session = Depends(get_db)):
     """Used by admins to login to the dashboard"""
@@ -58,7 +58,6 @@ async def login(login_credentials: schemas.LoginCredentials, db: Session = Depen
             }
         }
     },
-    tags=["Authentication"],
 )
 async def signup(data: schemas.UserCreate, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
     """Used for adding a new admin to the dashboard"""
@@ -71,7 +70,6 @@ async def signup(data: schemas.UserCreate, db: Session = Depends(get_db), curren
             "description": "Logged in successfully",
         },
     },
-    tags=["Authentication"]
 )
 async def authorize(login_credentials: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     """For SwaggerUI authentication"""

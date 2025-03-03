@@ -61,9 +61,11 @@ async def get_sources(db: Session, source_state: str, source_city: str, source_a
         or_(source_address is None, func.lower(models.Source.address)==func.lower(source_address)),
         or_(source_zipcode is None, func.lower(models.Source.zipcode)==func.lower(source_zipcode))
     ) 
-    stmt = select(models.Source).where(where_clause).order_by(models.Source.state, models.Source.city, models.Source.zipcode, models.Source.id).offset((page-1)*limit).limit(limit)
+    stmt = select(models.Source).where(where_clause).order_by(models.Source.state, models.Source.city, models.Source.zipcode, models.Source.id)
+    if page is not None and limit is not None:
+        stmt = stmt.offset((page-1)*limit).limit(limit)
     data = [schemas.Source.model_validate(source) for source in db.execute(stmt).scalars().all()]
     total_rows = db.execute(select(func.count(models.Source.id)).where(where_clause)).scalar()
-    total_pages = (total_rows + limit - 1) // limit
+    total_pages = None if limit is None else (total_rows + limit - 1) // limit
     response = schemas.Pagination[schemas.Source](data=data, total_rows=total_rows, total_pages=total_pages, current_page=page, limit=limit)
     return response

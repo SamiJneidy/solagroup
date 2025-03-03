@@ -5,14 +5,16 @@ from .. import schemas, crud, models
 from ..core.database import get_db
 from ..crud.authentication import get_current_user
 
-router = APIRouter(prefix="/estimate-cost")
+router = APIRouter(
+    prefix="/estimate-cost",
+    tags=["Estimate Cost"],
+)
 
 
 @router.post(
     path="",
     response_model=schemas.EstimateCostResponse,
     status_code=status.HTTP_200_OK,
-    tags=["Estimate cost"],
 )
 async def estimate_cost(
     data: schemas.EstimateCostRequest, db: Session = Depends(get_db)

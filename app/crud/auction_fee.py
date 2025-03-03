@@ -26,11 +26,13 @@ async def get_auction_fee_by_id(id: int, db: Session) -> schemas.AuctionFee:
         raise exceptions.ResourceNotFound(resource="Auction fee")
     return schemas.AuctionFee.model_validate(auction_fee)
 
-async def get_auction_fees(db: Session, page: int = 1, limit: int = 10, auction: Optional[schemas.Auction] = None) -> schemas.Pagination[schemas.AuctionFee]:
-    stmt = select(models.AuctionFee).where(or_(auction==None, models.AuctionFee.auction==auction)).order_by(models.AuctionFee.id).offset((page-1)*limit).limit(limit)
+async def get_auction_fees(db: Session, page: int, limit: int, auction: Optional[schemas.Auction] = None) -> schemas.Pagination[schemas.AuctionFee]:
+    stmt = select(models.AuctionFee).where(or_(auction==None, models.AuctionFee.auction==auction)).order_by(models.AuctionFee.id)
+    if page is not None and limit is not None:
+        stmt = stmt.offset((page-1)*limit).limit(limit)
     data = [schemas.AuctionFee.model_validate(auction_fee) for auction_fee in db.execute(stmt).scalars().all()]
     total_rows = db.execute(select(func.count(models.AuctionFee.id)).where(or_(auction==None, models.AuctionFee.auction==auction))).scalar()
-    total_pages = (total_rows + limit - 1) // limit
+    total_pages = None if limit is None else (total_rows + limit - 1) // limit
     response = schemas.Pagination[schemas.AuctionFee](data=data, total_rows=total_rows, total_pages=total_pages, current_page=page, limit=limit)
     return response
 

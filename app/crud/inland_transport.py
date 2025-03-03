@@ -73,10 +73,12 @@ async def get_inland_transports(db: Session, source_state: str, source_city: str
         or_(warehouse_state is None, func.lower(models.Warehouse.state)==func.lower(warehouse_state)),
         or_(warehouse_zipcode is None, func.lower(models.Warehouse.zipcode)==func.lower(warehouse_zipcode))
     )  
-    stmt = inland_transport_view.where(where_clause).order_by(models.Source.state, models.Source.city, models.Warehouse.state, models.Warehouse.city, models.InlandTransport.id).offset((page-1)*limit).limit(limit)
+    stmt = inland_transport_view.where(where_clause).order_by(models.Source.state, models.Source.city, models.Warehouse.state, models.Warehouse.city, models.InlandTransport.id)
+    if page is not None and limit is not None:
+        stmt = stmt.offset((page-1)*limit).limit(limit)
     data = [schemas.InlandTransport.model_validate(inland_transport) for inland_transport in db.execute(stmt).mappings().all()]
     total_rows = db.execute(select(func.count()).select_from(inland_transport_view.where(where_clause))).scalar()
-    total_pages = (total_rows + limit - 1) // limit
+    total_pages = None if limit is None else (total_rows + limit - 1) // limit
     response = schemas.Pagination[schemas.InlandTransport](data=data, total_rows=total_rows, total_pages=total_pages, current_page=page, limit=limit)
     return response
 

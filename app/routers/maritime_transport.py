@@ -4,7 +4,10 @@ from .. import schemas, crud
 from ..core.database import get_db
 from ..crud.authentication import get_current_user
 
-router = APIRouter(prefix="/maritime-transport")
+router = APIRouter(
+    prefix="/maritime-transport",
+    tags=["Maritime Transport"],
+)
 
 
 @router.get(
@@ -27,7 +30,6 @@ router = APIRouter(prefix="/maritime-transport")
             },
         },
     },
-    tags=["Maritime Transport"],
 )
 async def get_maritime_transport_by_id(
     id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)
@@ -43,7 +45,6 @@ async def get_maritime_transport_by_id(
             "description": "Successfully returned the maritime transports",
         },
     },
-    tags=["Maritime Transport"],
 )
 async def get_maritime_transports(
     page: int = 1,
@@ -94,7 +95,6 @@ async def get_maritime_transports(
             }
         },
     },
-    tags=["Maritime Transport"],
 )
 async def create_maritime_transport(
     data: schemas.MaritimeTransportCreate,
@@ -151,7 +151,6 @@ async def create_maritime_transport(
             }
         },
     },
-    tags=["Maritime Transport"],
 )
 async def update_maritime_transport(
     id: int,
@@ -181,7 +180,6 @@ async def update_maritime_transport(
             },
         },
     },
-    tags=["Maritime Transport"],
 )
 async def delete_maritime_transport(
     id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)

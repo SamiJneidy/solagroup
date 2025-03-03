@@ -4,7 +4,10 @@ from .. import schemas, crud
 from ..core.database import get_db
 from ..crud.authentication import get_current_user
 
-router = APIRouter(prefix="/warehouses")
+router = APIRouter(
+    prefix="/warehouses",
+    tags=["Warehouses"],
+)
 
 
 @router.get(
@@ -27,7 +30,6 @@ router = APIRouter(prefix="/warehouses")
             },
         },
     },
-    tags=["Warehouses"],
 )
 async def get_warehouse_by_id(id: int, db: Session = Depends(get_db)):
     return await crud.warehouse.get_warehouse_by_id(id, db)
@@ -53,7 +55,6 @@ async def get_warehouse_by_id(id: int, db: Session = Depends(get_db)):
             },
         },
     },
-    tags=["Warehouses"],
 )
 async def get_warehouse_by_zipcode(zipcode: str, db: Session = Depends(get_db)):
     return await crud.warehouse.get_warehouse_by_zipcode(zipcode, db)
@@ -67,7 +68,6 @@ async def get_warehouse_by_zipcode(zipcode: str, db: Session = Depends(get_db)):
             "description": "Successfully returned the warehouses",
         },
     },
-    tags=["Warehouses"],
 )
 async def get_warehouses(page: int = 1, limit: int = 10, db: Session = Depends(get_db)):
     return await crud.warehouse.get_warehouses(db, page, limit)
@@ -81,7 +81,6 @@ async def get_warehouses(page: int = 1, limit: int = 10, db: Session = Depends(g
             "description": "Successfully returned the warehouse",
         },
     },
-    tags=["Warehouses"],
 )
 async def get_warehouses_order_by_cost(
     page: int = 1,
@@ -123,7 +122,6 @@ async def get_warehouses_order_by_cost(
             }
         },
     },
-    tags=["Warehouses"],
 )
 async def create_warehouse(
     data: schemas.WarehouseCreate,
@@ -165,7 +163,6 @@ async def create_warehouse(
             }
         },
     },
-    tags=["Warehouses"],
 )
 async def update_warehouse(
     id: int,

@@ -5,7 +5,10 @@ from .. import schemas, crud, models
 from ..core.database import get_db
 from ..crud.authentication import get_current_user
 
-router = APIRouter(prefix="/auction-fees")
+router = APIRouter(
+    prefix="/auction-fees",
+    tags=["Auction Fees"],
+)
 
 
 @router.get(
@@ -28,7 +31,6 @@ router = APIRouter(prefix="/auction-fees")
             }
         },
     },
-    tags=["Auction fees"],
 )
 async def get_auction_fee_by_id(
     id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)
@@ -44,11 +46,10 @@ async def get_auction_fee_by_id(
             "description": "Auction fees returned successfully",
         },
     },
-    tags=["Auction fees"],
 )
 async def get_auction_fees(
-    page: int = 1,
-    limit: int = 10,
+    page: int = None,
+    limit: int = None,
     auction: Optional[schemas.Auction] = None,
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user),
@@ -77,7 +78,6 @@ async def get_auction_fees(
             }
         },
     },
-    tags=["Auction fees"],
 )
 async def update_auction_fee(
     id: int,

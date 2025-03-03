@@ -52,9 +52,11 @@ async def get_destinations(db: Session, country: str, port: str, page: int, limi
         or_(country is None, models.Destination.country==country),
         or_(port is None, models.Destination.port==port)
     )
-    stmt = select(models.Destination).where(where_clause).order_by(models.Destination.country, models.Destination.port, models.Destination.id).offset((page-1)*limit).limit(limit)
+    stmt = select(models.Destination).where(where_clause).order_by(models.Destination.country, models.Destination.port, models.Destination.id)
+    if page is not None and limit is not None:
+        stmt = stmt.offset((page-1)*limit).limit(limit)
     data = [schemas.Destination.model_validate(destination) for destination in db.execute(stmt).scalars().all()]
     total_rows = db.execute(select(func.count(models.Destination.id)).where(where_clause)).scalar()
-    total_pages = (total_rows + limit - 1) // limit
+    total_pages = None if limit is None else (total_rows + limit - 1) // limit
     response = schemas.Pagination[schemas.Destination](data=data, total_rows=total_rows, total_pages=total_pages, current_page=page, limit=limit)
     return response

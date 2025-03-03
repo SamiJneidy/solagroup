@@ -4,7 +4,10 @@ from .. import schemas, crud
 from ..core.database import get_db
 from ..crud.authentication import get_current_user
 
-router = APIRouter(prefix="/destinations")
+router = APIRouter(
+    prefix="/destinations",
+    tags=["Destinations"],
+)
 
 
 @router.get(
@@ -27,7 +30,6 @@ router = APIRouter(prefix="/destinations")
             },
         },
     },
-    tags=["Destinations"],
 )
 async def get_destination_by_id(id: int, db: Session = Depends(get_db)):
     return await crud.destination.get_destination_by_id(id, db)
@@ -41,7 +43,6 @@ async def get_destination_by_id(id: int, db: Session = Depends(get_db)):
             "description": "Successfully returned the destinations",
         },
     },
-    tags=["Destinations"],
 )
 async def get_destinations(
     page: int = 1,
@@ -73,7 +74,6 @@ async def get_destinations(
             }
         },
     },
-    tags=["Destinations"],
 )
 async def create_destination(
     data: schemas.DestinationCreate,
@@ -115,7 +115,6 @@ async def create_destination(
             }
         },
     },
-    tags=["Destinations"],
 )
 async def update_destination(
     id: int,

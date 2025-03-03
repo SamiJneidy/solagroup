@@ -4,7 +4,10 @@ from .. import schemas, crud
 from ..core.database import get_db
 from ..crud.authentication import get_current_user
 
-router = APIRouter(prefix="/sources")
+router = APIRouter(
+    prefix="/sources",
+    tags=["Sources"],    
+)
 
 
 @router.get(
@@ -27,7 +30,6 @@ router = APIRouter(prefix="/sources")
             },
         },
     },
-    tags=["Sources"],
 )
 async def get_source_by_id(id: int, db: Session = Depends(get_db)):
     return await crud.source.get_source_by_id(id, db)
@@ -53,7 +55,6 @@ async def get_source_by_id(id: int, db: Session = Depends(get_db)):
             },
         },
     },
-    tags=["Sources"],
 )
 async def get_source_by_zipcode(zipcode: str, db: Session = Depends(get_db)):
     return await crud.source.get_source_by_zipcode(zipcode, db)
@@ -67,7 +68,6 @@ async def get_source_by_zipcode(zipcode: str, db: Session = Depends(get_db)):
             "description": "Successfully returned the sources",
         },
     },
-    tags=["Sources"],
 )
 async def get_sources(
     page: int = 1,
@@ -103,7 +103,6 @@ async def get_sources(
             }
         },
     },
-    tags=["Sources"],
 )
 async def create_source(
     data: schemas.SourceCreate,
@@ -145,7 +144,6 @@ async def create_source(
             }
         },
     },
-    tags=["Sources"],
 )
 async def update_source(
     id: int,

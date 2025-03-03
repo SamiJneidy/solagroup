@@ -47,10 +47,12 @@ async def get_shipping_line_by_id(id: int, db: Session) -> schemas.ShippingLine:
         raise exceptions.ResourceNotFound(resource="Shipping line") 
     return schemas.ShippingLine.model_validate(source)
 
-async def get_shipping_lines(db: Session, page: int = 1, limit: int = 10) -> schemas.Pagination[schemas.ShippingLine]:
-    stmt = select(models.ShippingLine).order_by(models.ShippingLine.name, models.ShippingLine.id).offset((page-1)*limit).limit(limit)
+async def get_shipping_lines(db: Session, page: int, limit: int) -> schemas.Pagination[schemas.ShippingLine]:
+    stmt = select(models.ShippingLine).order_by(models.ShippingLine.name, models.ShippingLine.id)
+    if page is not None and limit is not None:
+        stmt = stmt.offset((page-1)*limit).limit(limit)
     data = [schemas.ShippingLine.model_validate(shipping_line) for shipping_line in db.execute(stmt).scalars().all()]
     total_rows = db.execute(select(func.count(models.ShippingLine.id))).scalar()
-    total_pages = (total_rows + limit - 1) // limit
+    total_pages = None if limit is None else (total_rows + limit - 1) // limit
     response = schemas.Pagination[schemas.ShippingLine](data=data, total_rows=total_rows, total_pages=total_pages, current_page=page, limit=limit)
     return response

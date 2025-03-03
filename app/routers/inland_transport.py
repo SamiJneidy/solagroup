@@ -4,7 +4,10 @@ from .. import schemas, crud
 from ..core.database import get_db
 from ..crud.authentication import get_current_user
 
-router = APIRouter(prefix="/inland-transport")
+router = APIRouter(
+    prefix="/inland-transport",
+    tags=["Inland Transport"],
+)
 
 
 @router.get(
@@ -27,7 +30,6 @@ router = APIRouter(prefix="/inland-transport")
             },
         },
     },
-    tags=["Inland Transport"],
 )
 async def get_inland_transport_by_id(
     id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)
@@ -43,7 +45,6 @@ async def get_inland_transport_by_id(
             "description": "Successfully returned the inland transports",
         },
     },
-    tags=["Inland Transport"],
 )
 async def get_inland_transports(
     page: int = 1,
@@ -104,7 +105,6 @@ async def get_inland_transports(
             }
         },
     },
-    tags=["Inland Transport"],
 )
 async def create_inland_transport(
     data: schemas.InlandTransportCreate,
@@ -161,7 +161,6 @@ async def create_inland_transport(
             }
         },
     },
-    tags=["Inland Transport"],
 )
 async def update_inland_transport(
     id: int,
@@ -191,7 +190,6 @@ async def update_inland_transport(
             },
         },
     },
-    tags=["Inland Transport"],
 )
 async def delete_inland_transport(
     id: int, db: Session = Depends(get_db), current_user = Depends(get_current_user)

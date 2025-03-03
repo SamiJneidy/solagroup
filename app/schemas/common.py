@@ -1,11 +1,11 @@
 from pydantic import BaseModel
-from typing import List, Generic, TypeVar
+from typing import List, Generic, TypeVar, Optional
 
 placeholder = TypeVar("T")
 
 class Pagination(BaseModel, Generic[placeholder]):
     data: List[placeholder]
-    total_rows: int
-    total_pages: int
-    current_page: int
-    limit: int
+    total_rows: Optional[int]
+    total_pages: Optional[int]
+    current_page: Optional[int]
+    limit: Optional[int]

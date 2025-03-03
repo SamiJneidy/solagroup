@@ -73,17 +73,19 @@ async def get_maritime_transports(db: Session, warehouse_id: int, shipping_line_
         or_(shipping_line_id is None, models.MaritimeTransport.shipping_line_id==shipping_line_id),
         or_(destination_id is None, models.MaritimeTransport.destination_id==destination_id),
     )
-    stmt = maritime_transport_view.where(where_clause).order_by(models.Warehouse.state, models.Warehouse.city, models.ShippingLine.name, models.MaritimeTransport.id).offset((page-1)*limit).limit(limit)
+    stmt = maritime_transport_view.where(where_clause).order_by(models.Warehouse.state, models.Warehouse.city, models.ShippingLine.name, models.MaritimeTransport.id)
+    if page is not None and limit is not None:
+        stmt = stmt.offset((page-1)*limit).limit(limit)
     data = [schemas.MaritimeTransport.model_validate(maritime_transport) for maritime_transport in db.execute(stmt).mappings().all()]
     total_rows = db.execute(select(func.count()).select_from(maritime_transport_view.where(where_clause))).scalar()
-    total_pages = (total_rows + limit - 1) // limit
+    total_pages = None if limit is None else (total_rows + limit - 1) // limit
     response = schemas.Pagination[schemas.MaritimeTransport](data=data, total_rows=total_rows, total_pages=total_pages, current_page=page, limit=limit)
     return response
 
 
 async def get_maritime_transport_between(warehouse_id: int, shipping_line_id: int, destination_country: str, destination_port: str, db: Session) -> float:
     from .destination import get_destinations
-    destination = await get_destinations(db, destination_country, destination_port, 1, 10)
+    destination = await get_destinations(db, destination_country, destination_port, None, None)
     destination_id = destination.data[0].id
     cost = db.execute(
         select(models.MaritimeTransport.cost).where(and_(

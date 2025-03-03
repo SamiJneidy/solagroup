@@ -54,11 +54,13 @@ async def get_warehouse_by_zipcode(zipcode: str, db: Session) -> schemas.Warehou
         raise exceptions.ResourceNotFound(resource="Warehouse")
     return schemas.Warehouse.model_validate(warehouse)
 
-async def get_warehouses(db: Session, page: int = 1, limit: int = 10) -> schemas.Pagination[schemas.Warehouse]:
-    stmt = select(models.Warehouse).order_by(models.Warehouse.state, models.Warehouse.city, models.Warehouse.zipcode, models.Warehouse.id).offset((page-1)*limit).limit(limit)
+async def get_warehouses(db: Session, page: int, limit: int) -> schemas.Pagination[schemas.Warehouse]:
+    stmt = select(models.Warehouse).order_by(models.Warehouse.state, models.Warehouse.city, models.Warehouse.zipcode, models.Warehouse.id)
+    if page is not None and limit is not None:
+        stmt = stmt.offset((page-1)*limit).limit(limit)
     data = [schemas.Warehouse.model_validate(warehouse) for warehouse in db.execute(stmt).scalars().all()]
     total_rows = db.execute(select(func.count(models.Warehouse.id))).scalar()
-    total_pages = (total_rows + limit - 1) // limit
+    total_pages = None if limit is None else (total_rows + limit - 1) // limit
     response = schemas.Pagination[schemas.Warehouse](data=data, total_rows=total_rows, total_pages=total_pages, current_page=page, limit=limit)
     return response
 
@@ -90,8 +92,10 @@ async def get_warehouses_order_by_cost(db: Session, source_id: int, shipping_lin
     stmt = view.where(where_clause).order_by(
         func.min(models.InlandTransport.cost+models.MaritimeTransport.cost)
     )
-    data = [schemas.Warehouse.model_validate(warehouse) for warehouse in db.execute(stmt.offset((page-1)*limit).limit(limit)).mappings().all()]
+    if page is not None and limit is not None:
+        stmt = stmt.offset((page-1)*limit).limit(limit)
+    data = [schemas.Warehouse.model_validate(warehouse) for warehouse in db.execute(stmt).mappings().all()]
     total_rows = db.execute(select(func.count()).select_from(stmt)).scalar()
-    total_pages = (total_rows + limit - 1) // limit
+    total_pages = None if limit is None else (total_rows + limit - 1) // limit
     response = schemas.Pagination[schemas.Warehouse](data=data, total_rows=total_rows, total_pages=total_pages, current_page=page, limit=limit)
     return response
