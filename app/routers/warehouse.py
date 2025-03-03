@@ -69,7 +69,7 @@ async def get_warehouse_by_zipcode(zipcode: str, db: Session = Depends(get_db)):
         },
     },
 )
-async def get_warehouses(page: int = 1, limit: int = 10, db: Session = Depends(get_db)):
+async def get_warehouses(page: int = None, limit: int = None, db: Session = Depends(get_db)):
     return await crud.warehouse.get_warehouses(db, page, limit)
 
 
@@ -83,8 +83,8 @@ async def get_warehouses(page: int = 1, limit: int = 10, db: Session = Depends(g
     },
 )
 async def get_warehouses_order_by_cost(
-    page: int = 1,
-    limit: int = 10,
+    page: int = None,
+    limit: int = None,
     source_id: int = None,
     shipping_line_id: int = None,
     destination_country: str = None,

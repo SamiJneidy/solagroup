@@ -70,8 +70,8 @@ async def get_source_by_zipcode(zipcode: str, db: Session = Depends(get_db)):
     },
 )
 async def get_sources(
-    page: int = 1,
-    limit: int = 10,
+    page: int = None,
+    limit: int = None,
     source_state: str = None,
     source_city: str = None,
     source_address: str = None,

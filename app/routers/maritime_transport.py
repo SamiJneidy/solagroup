@@ -47,8 +47,8 @@ async def get_maritime_transport_by_id(
     },
 )
 async def get_maritime_transports(
-    page: int = 1,
-    limit: int = 10,
+    page: int = None,
+    limit: int = None,
     warehouse_id: int = None,
     shipping_line_id: int = None,
     destination_id: int = None,

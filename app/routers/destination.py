@@ -45,8 +45,8 @@ async def get_destination_by_id(id: int, db: Session = Depends(get_db)):
     },
 )
 async def get_destinations(
-    page: int = 1,
-    limit: int = 10,
+    page: int = None,
+    limit: int = None,
     country: str = None,
     port: str = None,
     db: Session = Depends(get_db),

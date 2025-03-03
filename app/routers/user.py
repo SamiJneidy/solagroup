@@ -16,6 +16,6 @@ router = APIRouter(
     status_code=status.HTTP_200_OK,
 )
 async def get_users(
-    db: Session = Depends(get_db), current_user=Depends(get_current_user)
+    db: Session = Depends(get_db), page: int = None, limit: int = None, current_user=Depends(get_current_user)
 ):
-    return await crud.get_users(db)
+    return await crud.get_users(db, page, limit)

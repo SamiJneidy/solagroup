@@ -33,7 +33,7 @@ router = APIRouter(
     },
 )
 async def get_auction_fee_by_id(
-    id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)
+    id: int, db: Session = Depends(get_db), current_user = Depends(get_current_user)
 ):
     return await crud.auction_fee.get_auction_fee_by_id(id, db)
 

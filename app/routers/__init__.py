@@ -18,11 +18,11 @@ routers = [
     inalnd_transport_router, 
     shipping_line_router, 
     maritime_transport_router,
-    copart_router,
     auction_fee_router,
     additional_settings_router,
     estimate_cost_router,
     destinations_router,
+    # copart_router,
 ]
 
 
