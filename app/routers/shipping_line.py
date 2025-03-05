@@ -32,6 +32,7 @@ router = APIRouter(
     },
 )
 async def get_shipping_line_by_id(id: int, db: Session = Depends(get_db)):
+    """Returns shipping line by id"""
     return await crud.shipping_line.get_shipping_line_by_id(id, db)
 
 
@@ -47,6 +48,7 @@ async def get_shipping_line_by_id(id: int, db: Session = Depends(get_db)):
 async def get_shipping_lines(
     page: int = None, limit: int = None, db: Session = Depends(get_db)
 ):
+    """Returns shipping lines with multiple search filters. In case you didn't provide page and limit for pagination, all data will be returned."""
     return await crud.shipping_line.get_shipping_lines(db, page, limit)
 
 
@@ -74,8 +76,9 @@ async def get_shipping_lines(
 async def create_shipping_line(
     data: schemas.ShippingLineCreate,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user = Depends(get_current_user),
 ):
+    """Adds a new shipping line to the database."""
     return await crud.shipping_line.create_shipping_line(data, db)
 
 
@@ -116,8 +119,9 @@ async def update_shipping_line(
     id: int,
     data: schemas.ShippingLineUpdate,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user = Depends(get_current_user),
 ):
+    """Updates shipping line by id."""
     return await crud.shipping_line.update_shipping_line(id, data, db)
 
 
@@ -152,9 +156,9 @@ async def update_shipping_line(
             },
         },
     },
-    tags=["Shipping lines"]
 )
 async def delete_shipping_line(
-    id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)
+    id: int, db: Session = Depends(get_db), current_user = Depends(get_current_user)
 ):
+    """Deletes shipping line by id."""
     return await crud.shipping_line.delete_shipping_line(id, db)

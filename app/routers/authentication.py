@@ -35,7 +35,7 @@ router = APIRouter(
     },
 )
 async def login(login_credentials: schemas.LoginCredentials, db: Session = Depends(get_db)):
-    """Used by admins to login to the dashboard"""
+    """Used to login the admin to the dashboard."""
     return await authentication.login(login_credentials, db)
 
 @router.post(
@@ -60,7 +60,7 @@ async def login(login_credentials: schemas.LoginCredentials, db: Session = Depen
     },
 )
 async def signup(data: schemas.UserCreate, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
-    """Used for adding a new admin to the dashboard"""
+    """Used for adding a new admin."""
     return await authentication.signup(data, db)
 
 @router.post(
@@ -72,5 +72,5 @@ async def signup(data: schemas.UserCreate, db: Session = Depends(get_db), curren
     },
 )
 async def authorize(login_credentials: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    """For SwaggerUI authentication"""
+    """This is for SwaggerUI authentication for testing purposes only. Don't use this endpoint if you want to login as a frontend, use the login endpoint instead."""
     return await authentication.swaggerUI_login(login_credentials, db)

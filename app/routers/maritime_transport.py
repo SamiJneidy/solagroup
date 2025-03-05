@@ -32,8 +32,9 @@ router = APIRouter(
     },
 )
 async def get_maritime_transport_by_id(
-    id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)
+    id: int, db: Session = Depends(get_db), current_user = Depends(get_current_user)
 ):
+    """Returns maritime transport by id."""
     return await crud.maritime_transport.get_maritime_transport_by_id(id, db)
 
 
@@ -53,8 +54,9 @@ async def get_maritime_transports(
     shipping_line_id: int = None,
     destination_id: int = None,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user = Depends(get_current_user),
 ):
+    """Returns maritime transports with multiple search filters. In case you didn't provide page and limit for pagination, all data will be returned."""
     return await crud.maritime_transport.get_maritime_transports(
         db, warehouse_id, shipping_line_id, destination_id, page, limit
     )
@@ -99,8 +101,9 @@ async def get_maritime_transports(
 async def create_maritime_transport(
     data: schemas.MaritimeTransportCreate,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user = Depends(get_current_user),
 ):
+    """Adds a new maritime transport to the database."""
     return await crud.maritime_transport.create_maritime_transport(data, db)
 
 
@@ -156,8 +159,9 @@ async def update_maritime_transport(
     id: int,
     data: schemas.MaritimeTransportUpdate,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user = Depends(get_current_user),
 ):
+    """Updates maritime transport by id."""
     return await crud.maritime_transport.update_maritime_transport(id, data, db)
 
 
@@ -182,6 +186,7 @@ async def update_maritime_transport(
     },
 )
 async def delete_maritime_transport(
-    id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)
+    id: int, db: Session = Depends(get_db), current_user = Depends(get_current_user)
 ):
+    """Deletes maritime transport by id."""
     return await crud.maritime_transport.delete_maritime_transport(id, db)

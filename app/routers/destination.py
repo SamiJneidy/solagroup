@@ -32,6 +32,7 @@ router = APIRouter(
     },
 )
 async def get_destination_by_id(id: int, db: Session = Depends(get_db)):
+    """Returns destination by id."""
     return await crud.destination.get_destination_by_id(id, db)
 
 
@@ -51,6 +52,7 @@ async def get_destinations(
     port: str = None,
     db: Session = Depends(get_db),
 ):
+    """Returns destinations with multiple search filters. In case you didn't provide page and limit for pagination, all data will be returned."""
     return await crud.destination.get_destinations(db, country, port, page, limit)
 
 
@@ -78,8 +80,9 @@ async def get_destinations(
 async def create_destination(
     data: schemas.DestinationCreate,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user = Depends(get_current_user),
 ):
+    """Adds a new destination to the database."""
     return await crud.destination.create_destination(data, db)
 
 
@@ -120,8 +123,9 @@ async def update_destination(
     id: int,
     data: schemas.DestinationUpdate,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user = Depends(get_current_user),
 ):
+    """Updates destination by id."""
     return await crud.destination.update_destination(id, data, db)
 
 
@@ -159,6 +163,7 @@ async def update_destination(
     tags=["Destinations"]
 )
 async def delete_destination(
-    id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)
+    id: int, db: Session = Depends(get_db), current_user = Depends(get_current_user)
 ):
+    """Deletes a destination by id."""
     return await crud.destination.delete_destination(id, db)

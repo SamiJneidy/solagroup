@@ -32,6 +32,7 @@ router = APIRouter(
     },
 )
 async def get_source_by_id(id: int, db: Session = Depends(get_db)):
+    """Returns source by id."""
     return await crud.source.get_source_by_id(id, db)
 
 
@@ -57,6 +58,7 @@ async def get_source_by_id(id: int, db: Session = Depends(get_db)):
     },
 )
 async def get_source_by_zipcode(zipcode: str, db: Session = Depends(get_db)):
+    """Returns source by zipcode."""
     return await crud.source.get_source_by_zipcode(zipcode, db)
 
 
@@ -78,6 +80,7 @@ async def get_sources(
     source_zipcode: str = None,
     db: Session = Depends(get_db),
 ):
+    """Returns sources with multiple search filters. In case you didn't provide page and limit for pagination, all data will be returned."""
     return await crud.source.get_sources(
         db, source_state, source_city, source_address, source_zipcode, page, limit
     )
@@ -107,8 +110,9 @@ async def get_sources(
 async def create_source(
     data: schemas.SourceCreate,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user = Depends(get_current_user),
 ):
+    """Adds a new source to the database."""
     return await crud.source.create_source(data, db)
 
 
@@ -151,6 +155,7 @@ async def update_source(
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user),
 ):
+    """Updates source by id."""
     return await crud.source.update_source(id, data, db)
 
 
@@ -188,6 +193,7 @@ async def update_source(
     tags=["Sources"]
 )
 async def delete_source(
-    id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)
+    id: int, db: Session = Depends(get_db), current_user = Depends(get_current_user)
 ):
+    """Deletes source by id."""
     return await crud.source.delete_source(id, db)

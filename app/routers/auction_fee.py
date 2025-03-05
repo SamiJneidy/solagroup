@@ -35,6 +35,7 @@ router = APIRouter(
 async def get_auction_fee_by_id(
     id: int, db: Session = Depends(get_db), current_user = Depends(get_current_user)
 ):
+    """Returns auction fee by id."""
     return await crud.auction_fee.get_auction_fee_by_id(id, db)
 
 
@@ -54,6 +55,7 @@ async def get_auction_fees(
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user),
 ):
+    """Returns auction fees with the ability to filter by auction name."""
     return await crud.auction_fee.get_auction_fees(db, page, limit, auction)
 
 
@@ -83,6 +85,7 @@ async def update_auction_fee(
     id: int,
     data: schemas.AuctionFeeUpdate,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user = Depends(get_current_user),
 ):
+    """Updates auction fee data by id."""
     return await crud.auction_fee.update_auction_fee(id, data, db)

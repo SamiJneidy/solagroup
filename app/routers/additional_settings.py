@@ -20,6 +20,7 @@ router = APIRouter(
     },
 )
 async def get_additional_settings(db: Session = Depends(get_db), current_user = Depends(get_current_user)):
+    """Returns website's additional settings like the additional car fee."""
     return await crud.additional_settings.get_additional_settings(db)
 
 @router.put(
@@ -32,4 +33,5 @@ async def get_additional_settings(db: Session = Depends(get_db), current_user = 
     },
 )
 async def update_additional_settings(data: schemas.AdditionalSettingsUpdate, current_user = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Updates website's additional settings like the additional car fee."""
     return await crud.additional_settings.update_additional_settings(data, db)

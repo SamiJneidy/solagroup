@@ -32,6 +32,7 @@ router = APIRouter(
     },
 )
 async def get_warehouse_by_id(id: int, db: Session = Depends(get_db)):
+    """Returns warehouse by id."""
     return await crud.warehouse.get_warehouse_by_id(id, db)
 
 
@@ -57,6 +58,7 @@ async def get_warehouse_by_id(id: int, db: Session = Depends(get_db)):
     },
 )
 async def get_warehouse_by_zipcode(zipcode: str, db: Session = Depends(get_db)):
+    """Returns warehouse by zipcode."""
     return await crud.warehouse.get_warehouse_by_zipcode(zipcode, db)
 
 
@@ -70,6 +72,7 @@ async def get_warehouse_by_zipcode(zipcode: str, db: Session = Depends(get_db)):
     },
 )
 async def get_warehouses(page: int = None, limit: int = None, db: Session = Depends(get_db)):
+    """Returns warehouses. In case you didn't provide page and limit for pagination, all data will be returned."""
     return await crud.warehouse.get_warehouses(db, page, limit)
 
 
@@ -91,6 +94,8 @@ async def get_warehouses_order_by_cost(
     destination_port: str = None,
     db: Session = Depends(get_db),
 ):
+    """Returns warehouses sorted by the total cost in descending order. 
+    This endpoint is used in cost estimation filters to return the warehouses in the select list sorted by their total cost in prespective to the source, shipping line, destination country and port."""
     return await crud.warehouse.get_warehouses_order_by_cost(
         db,
         source_id,
@@ -126,8 +131,9 @@ async def get_warehouses_order_by_cost(
 async def create_warehouse(
     data: schemas.WarehouseCreate,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user = Depends(get_current_user),
 ):
+    """Adds a new warehouse to the database."""
     return await crud.warehouse.create_warehouse(data, db)
 
 
@@ -168,8 +174,9 @@ async def update_warehouse(
     id: int,
     data: schemas.WarehouseUpdate,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user = Depends(get_current_user),
 ):
+    """Updates warehouse by id."""
     return await crud.warehouse.update_warehouse(id, data, db)
 
 
@@ -207,6 +214,7 @@ async def update_warehouse(
     tags=["Warehouses"]
 )
 async def delete_warehouse(
-    id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)
+    id: int, db: Session = Depends(get_db), current_user = Depends(get_current_user)
 ):
+    """Deletes warehouse by id."""
     return await crud.warehouse.delete_warehouse(id, db)

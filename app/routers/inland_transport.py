@@ -32,8 +32,9 @@ router = APIRouter(
     },
 )
 async def get_inland_transport_by_id(
-    id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)
+    id: int, db: Session = Depends(get_db), current_user = Depends(get_current_user)
 ):
+    """Returns inland transport by id"""
     return await crud.inland_transport.get_inland_transport_by_id(id, db)
 
 
@@ -57,6 +58,7 @@ async def get_inland_transports(
     warehouse_zipcode: str = None,
     db: Session = Depends(get_db),
 ):
+    """Returns inland transports with multiple search filters. In case you didn't provide page and limit for pagination, all data will be returned."""
     return await crud.inland_transport.get_inland_transports(
         db,
         source_state,
@@ -109,8 +111,9 @@ async def get_inland_transports(
 async def create_inland_transport(
     data: schemas.InlandTransportCreate,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user = Depends(get_current_user),
 ):
+    """Adds a new inland transport to the database."""
     return await crud.inland_transport.create_inland_transport(data, db)
 
 
@@ -168,6 +171,7 @@ async def update_inland_transport(
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user),
 ):
+    """Updates inland transport by id."""
     return await crud.inland_transport.update_inland_transport(id, data, db)
 
 
@@ -194,6 +198,7 @@ async def update_inland_transport(
 async def delete_inland_transport(
     id: int, db: Session = Depends(get_db), current_user = Depends(get_current_user)
 ):
+    """Deletes inland transport by id."""
     return await crud.inland_transport.delete_inland_transport(id, db)
 
 
@@ -201,8 +206,9 @@ async def delete_inland_transport(
     path="/add-from-xlsx", status_code=status.HTTP_200_OK, tags=["Inland Transport"]
 )
 async def add_costs_from_xlsx(
-    db: Session = Depends(get_db), current_user=Depends(get_current_user)
+    db: Session = Depends(get_db), current_user = Depends(get_current_user)
 ):
+    """This endpoint inserts the inland transport data from an xml file during website setup and should not be used generaly."""
     import pandas as pd
 
     file_path = "sola.xlsx"
