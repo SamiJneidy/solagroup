@@ -14,7 +14,26 @@ router = APIRouter(
 @router.post(
     path="",
     response_model=schemas.EstimateCostResponse,
-    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_200_OK: {
+            "description": "Successfully calculated the cost",
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "There is not enough information in the database to calculate the cost based on the specified filters. This may happen due to missing inland or maritime transport data between some of the filters.",
+            "content": {
+                "application/json": {
+                    "examples": {
+                        "Inland transport Not Found": {
+                            "value": {"detail": "Inland transport not found"}
+                        },
+                        "Maritime transport Not Found": {
+                            "value": {"detail": "Maritime transport not found"}
+                        }
+                    }
+                }
+            },
+        },
+    },
 )
 async def estimate_cost(
     data: schemas.EstimateCostRequest, db: Session = Depends(get_db)
