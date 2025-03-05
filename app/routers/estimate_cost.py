@@ -38,4 +38,5 @@ router = APIRouter(
 async def estimate_cost(
     data: schemas.EstimateCostRequest, db: Session = Depends(get_db)
 ):
+    """Calculates the estimated cost of the vehicle based on the sent filters."""
     return await crud.estimate_cost.estimate_cost(data, db)
