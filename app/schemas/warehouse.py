@@ -14,9 +14,9 @@ class Warehouse(BaseModel):
 
 class WarehouseCreate(BaseModel):
     state: NonEmptyStr
-    city: Optional[str]
-    address: Optional[str]
-    zipcode: Optional[str]
+    city: Optional[str] = None
+    address: Optional[str] = None
+    zipcode: Optional[str] = None
 
     @field_validator('state', mode='before')
     def capitalize_string(cls, v):
