@@ -89,19 +89,13 @@ async def get_warehouses_order_by_cost(
     page: int = None,
     limit: int = None,
     source_id: int = None,
-    shipping_line_id: int = None,
-    destination_country: str = None,
-    destination_port: str = None,
     db: Session = Depends(get_db),
 ):
-    """Returns warehouses sorted by the total cost in descending order. 
-    This endpoint is used in cost estimation filters to return the warehouses in the select list sorted by their total cost in prespective to the source, shipping line, destination country and port."""
+    """Returns warehouses sorted by cost in descending order. 
+    This endpoint is used in cost estimation filters to return the warehouses in the select list sorted by their cost in prespective to the source."""
     return await crud.warehouse.get_warehouses_order_by_cost(
         db,
         source_id,
-        shipping_line_id,
-        destination_country,
-        destination_port,
         page,
         limit,
     )

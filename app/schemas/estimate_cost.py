@@ -20,8 +20,10 @@ class EstimateCostRequest(BaseModel):
     vin: Optional[str] = None
 
 class EstimateCostResponse(CarInfo):
+    amount: float
     inland_transport_cost: float
     maritime_transport_cost: float
     auction_fee: float
+    company_fee: float
     total_cost: float
 

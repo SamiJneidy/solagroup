@@ -28,7 +28,6 @@ async def get_auction_fee_by_id(id: int, db: Session) -> schemas.AuctionFee:
 
 async def get_auction_fees(db: Session, page: int, limit: int, auction: Optional[schemas.Auction] = None) -> schemas.Pagination[schemas.AuctionFee]:
     stmt = select(models.AuctionFee).where(or_(auction is None, models.AuctionFee.auction==auction)).order_by(models.AuctionFee.id)
-    print(stmt)
     if page is not None and limit is not None:
         stmt = stmt.offset((page-1)*limit).limit(limit)
     data = [schemas.AuctionFee.model_validate(auction_fee) for auction_fee in db.execute(stmt).scalars().all()]
@@ -38,7 +37,7 @@ async def get_auction_fees(db: Session, page: int, limit: int, auction: Optional
     return response
 
 async def get_auction_fee(amount: float, auction: schemas.Auction, db: Session) -> float:
-    stmt = select(models.AuctionFee).where(and_(models.AuctionFee.auction==auction, models.AuctionFee.range_from <= amount, models.AuctionFee.range_to >= amount))
+    stmt = select(models.AuctionFee).where(and_(models.AuctionFee.auction==auction, models.AuctionFee.range_from <= amount, amount < models.AuctionFee.range_to))
     auctioin_fee = db.execute(stmt).scalars().first()
     if auctioin_fee.range_to >= 0:
         return auctioin_fee.fee

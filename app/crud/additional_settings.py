@@ -22,8 +22,3 @@ async def get_additional_settings(db: Session) -> schemas.Pagination[schemas.Add
     data = [schemas.AdditionalSettings.model_validate(db.execute(stmt).scalars().first())]
     response = schemas.Pagination[schemas.AdditionalSettings](data=data, total_rows=1, total_pages=1, current_page=1, limit=1)
     return response
-
-async def get_additional_fee(db: Session) -> float:
-    stmt = select(models.AdditionalSettings.additional_fee)
-    additional_fee = db.execute(stmt).scalar()
-    return additional_fee

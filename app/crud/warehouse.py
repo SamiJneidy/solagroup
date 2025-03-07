@@ -64,33 +64,22 @@ async def get_warehouses(db: Session, page: int, limit: int) -> schemas.Paginati
     response = schemas.Pagination[schemas.Warehouse](data=data, total_rows=total_rows, total_pages=total_pages, current_page=page, limit=limit)
     return response
 
-async def get_warehouses_order_by_cost(db: Session, source_id: int, shipping_line_id: int, destination_country: str, destination_port: str, page: int, limit: int) -> schemas.Pagination[schemas.Warehouse]:
+async def get_warehouses_order_by_cost(db: Session, source_id: int, page: int, limit: int) -> schemas.Pagination[schemas.Warehouse]:
     view = select(
         models.Warehouse.id,
         models.Warehouse.state,
         models.Warehouse.city,
         models.Warehouse.zipcode,
         models.Warehouse.address,
-        func.min(models.InlandTransport.cost+models.MaritimeTransport.cost).label("total_cost")
-    ).join(models.InlandTransport, models.InlandTransport.warehouse_id==models.Warehouse.id
-    ).join(models.MaritimeTransport, models.MaritimeTransport.warehouse_id==models.Warehouse.id
-    ).join(models.ShippingLine, models.MaritimeTransport.shipping_line_id==models.ShippingLine.id
-    ).join(models.Destination, models.MaritimeTransport.destination_id==models.Destination.id
-    ).group_by(
-        models.Warehouse.id,
-        models.Warehouse.state,
-        models.Warehouse.city,
-        models.Warehouse.zipcode,
-        models.Warehouse.address,
+        models.InlandTransport.cost
+    ).join(
+        models.InlandTransport, models.InlandTransport.warehouse_id==models.Warehouse.id
     )
     where_clause = and_(
         or_(source_id is None, models.InlandTransport.source_id==source_id),
-        or_(shipping_line_id is None, models.MaritimeTransport.shipping_line_id==shipping_line_id),
-        or_(destination_country is None, models.Destination.country==destination_country),
-        or_(destination_port is None, models.Destination.port==destination_port),
     )
     stmt = view.where(where_clause).order_by(
-        func.min(models.InlandTransport.cost+models.MaritimeTransport.cost)
+        models.InlandTransport.cost
     )
     if page is not None and limit is not None:
         stmt = stmt.offset((page-1)*limit).limit(limit)

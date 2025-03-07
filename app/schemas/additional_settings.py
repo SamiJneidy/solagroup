@@ -5,7 +5,9 @@ from typing import Optional
 class AdditionalSettings(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    additional_fee: float
+    company_fee: float
+    additional_auction_fee: float
 
 class AdditionalSettingsUpdate(BaseModel):
-    additional_fee: Optional[float] = None
+    company_fee: Optional[float] = None
+    additional_auction_fee: Optional[float] = None
