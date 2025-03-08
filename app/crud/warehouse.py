@@ -76,7 +76,7 @@ async def get_warehouses_order_by_cost(db: Session, source_id: int, page: int, l
         models.InlandTransport, models.InlandTransport.warehouse_id==models.Warehouse.id
     )
     where_clause = and_(
-        or_(source_id is None, models.InlandTransport.source_id==source_id),
+        models.InlandTransport.source_id==source_id,
     )
     stmt = view.where(where_clause).order_by(
         models.InlandTransport.cost
