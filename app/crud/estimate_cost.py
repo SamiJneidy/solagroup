@@ -19,7 +19,7 @@ async def estimate_cost(
     maritime_transport_cost: float = (
         await maritime_transport.get_maritime_transport_between(
             data.warehouse, data.shipping_line, data.destination_country, data.destination_port, db
-        )
+        ) / data.shipping_type
     )
     additional_fees: schemas.Pagination[schemas.AdditionalSettings] = await additional_settings.get_additional_settings(db)
     company_fee = additional_fees.data[0].company_fee
@@ -61,7 +61,7 @@ async def estimate_cost(
         + inland_transport_cost
         + auction_fee_amount
         + company_fee
-        + maritime_transport_cost / data.shipping_type
+        + maritime_transport_cost
     )
     car_info = await utils.decode_vin(data.vin)
     response = schemas.EstimateCostResponse(
