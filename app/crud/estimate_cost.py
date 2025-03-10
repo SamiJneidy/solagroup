@@ -23,7 +23,12 @@ async def estimate_cost(
     )
     additional_fees: schemas.Pagination[schemas.AdditionalSettings] = await additional_settings.get_additional_settings(db)
     company_fee = additional_fees.data[0].company_fee
-    additional_auction_fee = additional_fees.data[0].additional_auction_fee
+    
+    additional_auction_fee = 0
+    if data.auction == "COPART":
+        additional_auction_fee = additional_fees.data[0].additional_copart_fee
+    elif data.auction == "IAAI":
+        additional_auction_fee = additional_fees.data[0].additional_iaai_fee
     
     # virtual bid fee ranges and values in copart and iaai are the same
     virtual_bid_fees = [ 
